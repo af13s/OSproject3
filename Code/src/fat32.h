@@ -1,4 +1,27 @@
-typedef struct {
+#include <stdio.h>
+#include <string.h>
+
+#define exit 0
+#define info 1
+#define ls 2
+#define cd 3
+#define size 4
+#define creat 5
+#define mkdir 6
+#define rm 7
+#define rmdir 8
+#define open 9
+#define close 10
+#define read 11
+#define write 12
+
+#define numcmd 13
+#define BootVarNum 1
+
+
+
+
+ struct FAT32BootBlock{
  unsigned char jmp[3];
  char oem[8];
  unsigned short sector_size;
@@ -22,21 +45,23 @@ char volume_label[11];
 char fs_type[8];
 char boot_code[436];
 unsigned short boot_sector_signature;
-}__attribute((packed)) FAT32BootBlock; 
+}__attribute__((packed)); 
 
-typedef struct {
+ struct FAT32DirBlock{
 
 	unsigned char  name[12];
-	unsigned short Attr;
-	unsigned short NTRes;
-	unsigned short CrtTimeTenth;
-	unsigned short CrtTime;
-	unsigned short CrtDate;
-	unsigned short LstAccDate;
-	unsigned short FstClusHI;
-	unsigned short WrtTime;
-	unsigned short WrtDate;
-	unsigned short FstClusLO;
+	unsigned char Attr;
+	unsigned char NTRes;
+	unsigned char CrtTimeTenth;
+	unsigned char CrtTime;
+	unsigned char CrtDate;
+	unsigned char LstAccDate;
+	unsigned char FstClusHI;
+	unsigned char WrtTime;
+	unsigned char WrtDate;
+	unsigned char FstClusLO;
 	unsigned int   FileSize;
 
-}__attribute((packed)) FAT32DirBlock;
+}__attribute__((packed));
+
+void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp);
