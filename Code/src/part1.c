@@ -50,11 +50,44 @@ int ls(int cluster_num)
 	unsigned int dentry_addr = 1049600;
 	fseek(img_fp,dentry_addr,SEEK_SET);
 
+	printf("\n");
+
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-		printf("%s\n",dblock.name);
+		if (dblock.Attr == DIRECTORY)
+			printf("dir->%s\n",formatname((char *)dblock.name,DIRECTORY));
+		else
+			printf("%s\n",formatname((char *)dblock.name,!DIRECTORY));
+
 		i++;
 	}
+
 	return 1;
+}
+
+char * formatname(char * name, int directory)
+{	
+	
+	 char * formatted = strdup(name);
+
+  	for(int i = 0; i < strlen(name); i++)
+  	{
+  		if (isspace(name[i]) && directory)
+  			formatted[i] = '\0';
+  		else if (isspace(name[i]) && !directory)
+  		{
+  			if (!isspace(name[i+1]) && (i < strlen(name) -1))
+  				formatted[i] = '.';
+  			else
+  				formatted[i] = '\0';
+
+  		}
+  		else if (isalpha(name[i]))
+  			formatted[i] = tolower(name[i]);
+  		else
+  			formatted[i] = name[i];
+  	}
+
+  	return formatted;
 }

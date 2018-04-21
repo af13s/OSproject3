@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define EXIT 0
 #define INFO 1
@@ -18,6 +19,8 @@
 
 #define NUMCMD 13
 #define BOOTVARNUM 1
+
+#define DIRECTORY 16 //HEX x10
 
 
 
@@ -72,5 +75,6 @@ void error_msg(int cmd, int tokens);
 int ls(int cluster_num);
 int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
+char * formatname( char * name,int);
 
 
