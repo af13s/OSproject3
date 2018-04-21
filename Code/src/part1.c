@@ -65,29 +65,3 @@ int ls(int cluster_num)
 
 	return 1;
 }
-
-char * formatname(char * name, int directory)
-{	
-	
-	 char * formatted = strdup(name);
-
-  	for(int i = 0; i < strlen(name); i++)
-  	{
-  		if (isspace(name[i]) && directory)
-  			formatted[i] = '\0';
-  		else if (isspace(name[i]) && !directory)
-  		{
-  			if (!isspace(name[i+1]) && (i < strlen(name) -1))
-  				formatted[i] = '.';
-  			else
-  				formatted[i] = '\0';
-
-  		}
-  		else if (isalpha(name[i]))
-  			formatted[i] = tolower(name[i]);
-  		else
-  			formatted[i] = name[i];
-  	}
-
-  	return formatted;
-}
