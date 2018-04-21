@@ -54,7 +54,11 @@ void ls(int cluster_num)
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-		if (dblock.Attr == DIRECTORY)
+
+		if (dblock.name[0] == 0x00)
+			break;
+
+		if (dblock.Attr == DIRECTORY) 
 			printf("dir->%s\n",formatname((char *)dblock.name,DIRECTORY));
 		else
 			printf("%s\n",formatname((char *)dblock.name,!DIRECTORY));
@@ -67,5 +71,16 @@ void ls(int cluster_num)
 	{
 		ls(fat_val);
 	}
+
+}
+
+unsigned int cd (unsigned int current_cluster, char * dirname)
+{
+	int dest = 0;
+	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname);
+	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && dblock.Attr == DIRECTORY)	
+		return dblock.FstClusHI*0x100 + dblock.FstClusLO;
+	else
+		return current_cluster;
 
 }

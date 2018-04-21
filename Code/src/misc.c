@@ -2,6 +2,7 @@
 
 extern struct FAT32BootBlock boot_sector;
 extern FILE * img_fp;
+extern char * commands [];
 
 
 void printDir(struct FAT32BootBlock * boot_sector, FILE * img_fp)
@@ -61,6 +62,120 @@ char * formatname(char * name, int directory)
 
   	return formatted;
 }
+
+
+
+
+/*  main misc */
+
+int isValidArg(int cmd, int argNum)
+{
+	switch(cmd)
+	{
+
+		case INFO:
+			return (argNum == 1);
+		case LS:
+			return(argNum == 2 || argNum == 1);
+		case CD:
+			return(argNum == 2);
+		case SIZE:
+			return(argNum == 2);
+		case CREAT:
+			return(argNum == 2);
+		case MKDIR:
+			return(argNum == 2);
+		case RM:
+			return(argNum == 2);
+		case RMDIR:
+			return(argNum == 2);
+		case OPEN:
+			return(argNum == 2);
+		case CLOSE:
+			return(argNum == 2);
+		case READ:
+			return(argNum == 4);
+		case WRITE:
+			return(argNum == 5);
+	}
+
+	return 0;
+}
+
+void prompt()
+{
+	printf("FAT32 cmdline->");
+}
+
+int parseTokens(char ** tokens)
+{
+	char * cmdline;
+	char input[80];
+	char * temp;
+	int num_toks = 0;
+
+	fgets(input,79,stdin);
+	cmdline = strtok(input,"\n");
+
+	/*Parse the input*/
+		temp = strtok(cmdline, " ");
+		while(temp != NULL )
+		{
+			tokens[num_toks++] = strdup(temp);
+			temp = strtok(NULL," ");
+		}
+
+	return num_toks;
+}
+
+void error_msg(int cmd,int num_toks)
+{
+
+}
+
+
+int getCmd(char ** tokens)
+{
+	int i;
+	int cmd = -1;
+
+	for (i =0; i < NUMCMD; i++)
+		if(!strcmp(tokens[0],commands[i]))
+		{
+			cmd = i;
+			break;
+		}
+	return cmd;
+}
+
+
+struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_name)
+{
+	int i = 0;
+	struct FAT32DirBlock dblock;
+	unsigned int fat_val = fatEntry(cluster_num);
+	unsigned int firstsector = getFirstCSector(cluster_num);
+
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(strcmp(formatname((char *)dblock.name,DIRECTORY),entry_name) == 0)
+			return dblock;
+
+		i++;
+	}
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+		return getDirectoryEntry(fat_val, entry_name);
+
+	return dblock;
+}
+
 
 //return first empty cluster number
 int findEmptyCluster()
