@@ -63,6 +63,9 @@ char * formatname(char * name, int directory)
   	return formatted;
 }
 
+
+
+
 /*  main misc */
 
 int isValidArg(int cmd, int argNum)
@@ -174,3 +177,18 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 
 	return empty;
 }
+
+
+//return first empty cluster number
+int findEmptyCluster()
+{
+	/*0,1are reserved*/
+	unsigned int i = 2;
+	for(i = 2; i < boot_sector.fat_size_sectors;i++)
+	{
+		if(!fatEntry(i))
+			return i;
+	}
+	return -1;
+}
+

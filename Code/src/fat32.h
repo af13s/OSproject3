@@ -90,5 +90,6 @@ void error_msg(int cmd, int tokens);
 int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
 char * formatname( char * name,int);
-
+int findEmptyCluster();
+int findEmptyDirEntry(unsigned int current_cluster);
 
