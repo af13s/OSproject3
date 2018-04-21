@@ -1,6 +1,8 @@
 #include "fat32.h"
 
 char * commands [] ={"exit", "info", "ls", "cd", "size", "creat", "mkdir", "rm", "rmdir", "open" ,"close" , "read", "write"};
+struct FAT32BootBlock boot_sector;
+FILE * img_fp;
 
 void prompt()
 {
@@ -41,7 +43,7 @@ int isValidArg(int cmd, int argNum)
 		case INFO:
 			return (argNum == 1);
 		case LS:
-			return(argNum == 2);
+			return(argNum == 2 || argNum == 1);
 		case CD:
 			return(argNum == 2);
 		case SIZE:
@@ -87,8 +89,9 @@ int main(int argc, char * argv[])
 	char * tokens[5];
 	int num_toks = 0;
 	int cmd = -1;
-	struct FAT32BootBlock boot_sector;
-	FILE * img_fp;
+	
+	
+	unsigned int current_cluster;
 
 	img_fp = fopen(argv[1],"rw");
 	if(img_fp == NULL)
@@ -97,7 +100,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	getInfo(&boot_sector,img_fp,1);
+	getInfo(1);
 
 	while(1) 
 	{
@@ -118,8 +121,11 @@ int main(int argc, char * argv[])
 		switch(cmd)
 		{   
 		   	case INFO:
-		    getInfo(&boot_sector,img_fp,0);
+		    getInfo(0);
 		    break;
+		    case LS:
+		    	ls(2);
+		    	break;
 		}
 	}
 

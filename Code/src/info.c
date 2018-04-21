@@ -11,11 +11,12 @@ void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp, int boolean)
 	 	printf("sector size: %d\n",bblk->sector_size);
 	 	printf("Number of fats: %d\n",bblk->number_of_fats);
 	 	printf("Root Clusters: %d\n\n",bblk->bpb_rootcluster);
+	 	printf("sectors_per_cluster %d\n",bblk->sectors_per_cluster);
 	}
 
  	/*
  	//printf("jmp %d\n",bblk->jmp);
-	printf("sectors_per_cluster %d\n",bblk->sectors_per_cluster);
+	
  	printf("reserved_sectors %d\n",bblk->reserved_sectors);
  	printf("root_dir_entries %d\n",bblk->root_dir_entries);
  	printf("total_sectors_short %d\n",bblk->total_sectors_short);

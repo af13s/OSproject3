@@ -21,7 +21,6 @@
 
 
 
-
  struct FAT32BootBlock{
  unsigned char jmp[3];
  char oem[8];
@@ -38,7 +37,7 @@
  unsigned int hidden_sectors;
  unsigned int total_sectors_long;
 
-unsigned int bpb_FATz32;
+unsigned int bpb_FATSz32;
 unsigned short bpb_extflags;
 unsigned short bpb_fsver; 
 unsigned int bpb_rootcluster;
@@ -49,8 +48,8 @@ unsigned short boot_sector_signature;
 }__attribute__((packed)); 
 
  struct FAT32DirBlock{
-
-	unsigned char  name[12];
+ 	unsigned char garb[32];
+	unsigned char  name[11];
 	unsigned char Attr;
 	unsigned char NTRes;
 	unsigned char CrtTimeTenth;
@@ -65,8 +64,13 @@ unsigned short boot_sector_signature;
 
 }__attribute__((packed));
 
-void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp,int boolean);
+void getInfo(int boolean);
 int isvalidArg(int cmd, int argNum);
 void prompt();
 int parseTokens(char ** tokens);
 void error_msg(int cmd, int tokens);
+int ls(int cluster_num);
+int getFirstCSector(int clus_num);
+unsigned int fatEntry(int clus_num);
+
+
