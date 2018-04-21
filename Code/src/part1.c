@@ -15,7 +15,7 @@ void getInfo(int boolean)
 	 	printf("Number of fats: %d\n",boot_sector.number_of_fats);
 	 	printf("Root Cluster Num: %d\n\n",boot_sector.bpb_rootcluster);
 	 	printf("sectors_per_cluster %d\n",boot_sector.sectors_per_cluster);
-
+	 	printf("root_dir_entries %d\n",boot_sector.root_dir_entries);
 	}
 
  	/*
@@ -45,9 +45,10 @@ int ls(int cluster_num)
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
-
-	//unsigned int firstsector = getFirstCSector(cluster_num);
-	unsigned int dentry_addr = 1049600;
+	unsigned int fatVal = fatEntry(cluster_num);
+	unsigned int firstsector = getFirstCSector(cluster_num);
+	
+	unsigned int dentry_addr = firstsector;
 	fseek(img_fp,dentry_addr,SEEK_SET);
 
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
@@ -56,5 +57,13 @@ int ls(int cluster_num)
 		printf("%s\n",dblock.name);
 		i++;
 	}
+
+	if(fatVal != 0x0FFFFFF8 && fatVal != 0x0FFFFFFF && fatVal != 0x00000000 )
+	{
+		ls(fatVal);
+	}
+	else
+		return 1;
+
 	return 1;
 }
