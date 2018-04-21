@@ -62,3 +62,16 @@ char * formatname(char * name, int directory)
   	return formatted;
 }
 
+//return first empty cluster number
+int findEmptyCluster()
+{
+	/*0,1are reserved*/
+	unsigned int i = 2;
+	for(i = 2; i < boot_sector.fat_size_sectors;i++)
+	{
+		if(!fatEntry(i))
+			return i;
+	}
+	return -1;
+}
+

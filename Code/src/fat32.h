@@ -76,5 +76,6 @@ void ls(int cluster_num);
 int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
 char * formatname( char * name,int);
-
+int findEmptyCluster();
+int findEmptyDirEntry(unsigned int current_cluster);
 
