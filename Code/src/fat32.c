@@ -11,7 +11,7 @@ int main(int argc, char * argv[])
 	int num_toks = 0;
 	int cmd = -1;
 	unsigned int current_cluster;
-
+	
 
 	//  
 	img_fp = fopen(argv[1],"rb+");
@@ -55,6 +55,11 @@ int main(int argc, char * argv[])
 		    current_cluster = cd(current_cluster, tokens[1]);
 		}
 	}
+
+
+
+
+
 
 	return 0;
 }

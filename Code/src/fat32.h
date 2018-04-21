@@ -89,4 +89,7 @@ unsigned int fatEntry(int clus_num);
 char * formatname( char * name,int);
 int findEmptyCluster();
 int findEmptyDirEntry(unsigned int current_cluster);
-
+void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock);
+void linkClusters(unsigned int parent_cluster, unsigned int child_cluster);
+int findEmptyDirEntry(unsigned int current_cluster);
+int findEmptyCluster();

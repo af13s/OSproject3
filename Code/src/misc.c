@@ -181,12 +181,65 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 int findEmptyCluster()
 {
 	/*0,1are reserved*/
-	unsigned int i = 2;
-	for(i = 2; i < boot_sector.fat_size_sectors;i++)
+	unsigned int begining = boot_sector.reserved_sectors*boot_sector.sector_size;
+	unsigned end = begining + boot_sector.bpb_FATSz32;
+	int i;
+	for(i=0; begining + i*(sizeof(int)) < end;i++)
 	{
 		if(!fatEntry(i))
 			return i;
 	}
 	return -1;
+}
+
+
+
+//return the address of the emptry directory entry if found; or -1 
+int findEmptyDirEntry(unsigned int current_cluster)
+{
+	unsigned int first_sector = getFirstCSector(current_cluster);
+	unsigned int dentry_addr = first_sector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+	struct FAT32DirBlock dblock;
+	int i = 0;
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(dblock.name[0] == 0x00)
+			return first_sector + i*sizeof(struct FAT32DirBlock);
+
+		i++;
+	}
+	return -1;
+}
+
+
+
+
+void linkClusters(unsigned int parent_cluster, unsigned int child_cluster)
+{
+	unsigned int zero = 0x0FFFFFF8;
+	int par_offset = boot_sector.reserved_sectors*boot_sector.sector_size + parent_cluster*sizeof(int);
+	int child_offset = boot_sector.reserved_sectors*boot_sector.sector_size + child_cluster*sizeof(int);
+	
+
+	fseek(img_fp,par_offset,SEEK_SET);
+	fwrite(&child_cluster,sizeof(unsigned int),1,img_fp);
+	
+	fseek(img_fp,child_offset,SEEK_SET);
+	fwrite(&zero,sizeof(unsigned int),1,img_fp);
+}
+
+
+
+void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock)
+{
+	memset(dblock,0,sizeof(struct FAT32DirBlock));
+	strcpy(dblock->name,name);
+	dblock->Attr = attr;
+	dblock->FstClusHI = HI;
+	dblock->FstClusLO = LO;
+
 }
 

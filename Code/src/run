@@ -1,4 +1,6 @@
 #!/bin/bash
 
 make
-./a.out fat32.img
+cp fat32.img fat32cpy.img
+./a.out fat32cpy.img
+rm -r fat32cpy.img
