@@ -1,22 +1,23 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define exit 0
-#define info 1
-#define ls 2
-#define cd 3
-#define size 4
-#define creat 5
-#define mkdir 6
-#define rm 7
-#define rmdir 8
-#define open 9
-#define close 10
-#define read 11
-#define write 12
+#define EXIT 0
+#define INFO 1
+#define LS 2
+#define CD 3
+#define SIZE 4
+#define CREAT 5
+#define MKDIR 6
+#define RM 7
+#define RMDIR 8
+#define OPEN 9
+#define CLOSE 10
+#define READ 11
+#define WRITE 12
 
-#define numcmd 13
-#define BootVarNum 1
+#define NUMCMD 13
+#define BOOTVARNUM 1
 
 
 
@@ -64,4 +65,8 @@ unsigned short boot_sector_signature;
 
 }__attribute__((packed));
 
-void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp);
+void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp,int boolean);
+int isvalidArg(int cmd, int argNum);
+void prompt();
+int parseTokens(char ** tokens);
+void error_msg(int cmd, int tokens);
