@@ -72,16 +72,30 @@ void ls(int cluster_num)
 	{
 		ls(fat_val);
 	}
-
 }
 
 unsigned int cd (unsigned int current_cluster, char * dirname)
 {
-	int dest = 0;
-	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname);
+	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname,DIRECTORY);
 	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && dblock.Attr == DIRECTORY)	
+	{
+		if (dblock.FstClusHI*0x100 + dblock.FstClusLO == 0)
+			return boot_sector.bpb_rootcluster;
+
 		return dblock.FstClusHI*0x100 + dblock.FstClusLO;
+	}
 	else
 		return current_cluster;
 
+}
+
+unsigned int size (unsigned int current_cluster, char * filename)
+{
+	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,!DIRECTORY);
+	if (!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && !(dblock.Attr == DIRECTORY))	
+	{
+		return dblock.FileSize;
+	}
+
+	return 0;
 }
