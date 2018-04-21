@@ -146,7 +146,7 @@ int getCmd(char ** tokens)
 }
 
 
-struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname)
+struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_name)
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
@@ -160,7 +160,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
 
-		if(strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) == 0)
+		if(strcmp(formatname((char *)dblock.name,DIRECTORY),entry_name) == 0)
 			return dblock;
 
 		i++;
@@ -168,7 +168,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname)
 
 
 	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
-		return getDirectoryEntry(fat_val, dirname);
+		return getDirectoryEntry(fat_val, entry_name);
 
 	return dblock;
 }

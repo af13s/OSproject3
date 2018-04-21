@@ -78,7 +78,7 @@ unsigned int cd (unsigned int current_cluster, char * dirname)
 {
 	int dest = 0;
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname);
-	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname))	
+	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && dblock.Attr == DIRECTORY)	
 		return dblock.FstClusHI*0x100 + dblock.FstClusLO;
 	else
 		return current_cluster;
