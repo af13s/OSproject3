@@ -89,9 +89,6 @@ int main(int argc, char * argv[])
 	char * tokens[5];
 	int num_toks = 0;
 	int cmd = -1;
-	
-	
-	unsigned int current_cluster;
 
 	img_fp = fopen(argv[1],"rw");
 	if(img_fp == NULL)
@@ -123,9 +120,10 @@ int main(int argc, char * argv[])
 		   	case INFO:
 		    getInfo(0);
 		    break;
+
 		    case LS:
-		    	ls(2);
-		    	break;
+		    ls(boot_sector.bpb_rootcluster);
+		    break;
 		}
 	}
 

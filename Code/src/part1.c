@@ -41,20 +41,20 @@ void getInfo(int boolean)
 	*/
 }
 
-int ls( int cluster_num)
+int ls(int cluster_num)
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
-	unsigned int firstsector = getFirstCSector(cluster_num);
-	unsigned int dentry_addr = firstsector;
+
+	//unsigned int firstsector = getFirstCSector(cluster_num);
+	unsigned int dentry_addr = 1049600;
+	fseek(img_fp,dentry_addr,SEEK_SET);
 
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
-		fseek(img_fp,dentry_addr,SEEK_SET);
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
 		printf("%s\n",dblock.name);
 		i++;
-		dentry_addr = i*sizeof(struct FAT32DirBlock) + firstsector;
 	}
 	return 1;
 }

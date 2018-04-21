@@ -27,7 +27,9 @@ unsigned int fatEntry(int clus_num)
 //Returns the First sector of the cluster passed in
 int getFirstCSector(int clus_num)
 {
-	int fDataSec = boot_sector.reserved_sectors + (boot_sector.number_of_fats* boot_sector.bpb_FATSz32);
-	return ((clus_num - 2 )*boot_sector.sectors_per_cluster) + fDataSec;		
+	int FirstDataSector = boot_sector.reserved_sectors + (boot_sector.number_of_fats* boot_sector.bpb_FATSz32);
+	int FirstSectorofCluster =(((clus_num - 2)*boot_sector.sectors_per_cluster) + FirstDataSector) ;
+	printf("assert 100400: %x",FirstSectorofCluster);
+	return FirstSectorofCluster;
 }
 
