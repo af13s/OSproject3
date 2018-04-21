@@ -67,12 +67,23 @@ unsigned short boot_sector_signature;
 
 }__attribute__((packed));
 
-void getInfo(int boolean);
-int isvalidArg(int cmd, int argNum);
-void prompt();
+// main
 int parseTokens(char ** tokens);
-void error_msg(int cmd, int tokens);
+int isValidArg(int cmd, int argNum);
+void getInfo(int boolean);
+int getCmd(char ** tokens);
+void prompt();
+
+
+//part1
 void ls(int cluster_num);
+unsigned int cd (unsigned int current_cluster, char * dirname);
+struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname);
+
+
+
+// misc
+void error_msg(int cmd, int tokens);
 int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
 char * formatname( char * name,int);
