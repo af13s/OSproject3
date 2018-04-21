@@ -41,11 +41,11 @@ void getInfo(int boolean)
 	*/
 }
 
-int ls(int cluster_num)
+void ls(int cluster_num)
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
-	unsigned int fatVal = fatEntry(cluster_num);
+	unsigned int fat_val = fatEntry(cluster_num);
 	unsigned int firstsector = getFirstCSector(cluster_num);
 	
 	unsigned int dentry_addr = firstsector;
@@ -54,16 +54,18 @@ int ls(int cluster_num)
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-		printf("%s\n",dblock.name);
+		if (dblock.Attr == DIRECTORY)
+			printf("dir->%s\n",formatname((char *)dblock.name,DIRECTORY));
+		else
+			printf("%s\n",formatname((char *)dblock.name,!DIRECTORY));
+
 		i++;
 	}
 
-	if(fatVal != 0x0FFFFFF8 && fatVal != 0x0FFFFFFF && fatVal != 0x00000000 )
-	{
-		ls(fatVal);
-	}
-	else
-		return 1;
 
-	return 1;
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+	{
+		ls(fat_val);
+	}
+
 }

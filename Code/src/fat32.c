@@ -90,7 +90,7 @@ int main(int argc, char * argv[])
 	char * tokens[5];
 	int num_toks = 0;
 	int cmd = -1;
-	unsigned int currCluster; 
+	unsigned int current_cluster; 
 	img_fp = fopen(argv[1],"rw");
 	if(img_fp == NULL)
 	{
@@ -99,7 +99,8 @@ int main(int argc, char * argv[])
 	}
 
 	getInfo(1);
-	currSector = boot_sector.rootcluster;
+	current_cluster = boot_sector.bpb_rootcluster;
+
 	while(1) 
 	{
 
@@ -123,7 +124,7 @@ int main(int argc, char * argv[])
 		    break;
 
 		    case LS:
-		    ls();
+		    ls(3);
 		    break;
 		}
 	}
