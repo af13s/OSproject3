@@ -11,6 +11,7 @@ int main(int argc, char * argv[])
 	int num_toks = 0;
 	int cmd = -1;
 	unsigned int current_cluster;
+	unsigned char original_cluster;
 
 
 	//  
@@ -24,6 +25,7 @@ int main(int argc, char * argv[])
 	//get boot sector information
 	getInfo(1);
 	current_cluster = boot_sector.bpb_rootcluster;
+	original_cluster = current_cluster;
 
 	while(1) 
 	{
@@ -48,16 +50,49 @@ int main(int argc, char * argv[])
 		    break;
 
 		    case LS:
-		    ls(current_cluster);
+		    ls_wrapper(num_toks,current_cluster,original_cluster,tokens);
 		    break;
 
 		    case CD:
 		    current_cluster = cd(current_cluster, tokens[1]);
+		    break;
+
+		    case SIZE:
+		    size_wrapper(current_cluster,tokens[1]);
+		    break;
 		}
 	}
 
 	return 0;
 }
 
+
+
+
+
+void ls_wrapper(int num_toks, int current_cluster, int original_cluster, char ** tokens)
+{
+	if (num_toks == 1)
+		    	ls(current_cluster);
+		    else
+		    {
+		    	if ( cd(current_cluster, tokens[1]) != current_cluster)
+		    	{
+			    	original_cluster = current_cluster;
+			    	current_cluster = cd(current_cluster, tokens[1]);
+			    	ls(current_cluster);
+			    	current_cluster = original_cluster;
+			    }
+			    //else error_msg();
+		    }
+}
+
+void size_wrapper(int current_cluster, char * token)
+{
+	unsigned int sz = size(current_cluster,token);
+	if (sz > 0)
+		printf("file size of %s: %d bytes\n\n" , token, sz);
+	//else error: not found
+}
 
 

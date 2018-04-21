@@ -10,8 +10,8 @@ void getInfo(struct FAT32BootBlock * bblk,FILE * img_fp, int boolean)
 	 	printf("\noem:  %s\n",bblk->oem);
 	 	printf("sector size: %d\n",bblk->sector_size);
 	 	printf("Number of fats: %d\n",bblk->number_of_fats);
-	 	printf("Root Clusters: %d\n\n",bblk->bpb_rootcluster);
-	 	printf("sectors_per_cluster %d\n",bblk->sectors_per_cluster);
+	 	printf("Root Clusters: %d\n",bblk->bpb_rootcluster);
+	 	printf("sectors_per_cluster %d\n\n",bblk->sectors_per_cluster);
 	}
 
  	/*

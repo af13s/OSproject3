@@ -77,9 +77,12 @@ void prompt();
 
 //part1
 void ls(int cluster_num);
+void ls_wrapper(int num_toks, int current_cluster, int original_cluster, char ** tokens);
 unsigned int cd (unsigned int current_cluster, char * dirname);
-struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname);
+struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname,int directory);
 
+void size_wrapper(int current_cluster, char * token);
+unsigned int size (unsigned int current_cluster, char * filename);
 
 
 // misc
