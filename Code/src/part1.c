@@ -55,7 +55,7 @@ void ls(int cluster_num)
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-
+		
 		if (dblock.name[0] == 0x00)
 			break;
 

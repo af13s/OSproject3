@@ -61,6 +61,10 @@ int main(int argc, char * argv[])
 		    case SIZE:
 		    size_wrapper(current_cluster,tokens[1]);
 		    break;
+
+		    case MKDIR:
+		    	mkdir(current_cluster,tokens[1]);
+		    	break;
 		}
 	}
 

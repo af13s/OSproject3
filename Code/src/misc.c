@@ -199,20 +199,43 @@ int findEmptyCluster()
 //return the address of the emptry directory entry if found; or -1 
 int findEmptyDirEntry(unsigned int current_cluster)
 {
-	unsigned int first_sector = getFirstCSector(current_cluster);
-	unsigned int dentry_addr = first_sector;
-	fseek(img_fp,dentry_addr,SEEK_SET);
-	struct FAT32DirBlock dblock;
+	
 	int i = 0;
+	struct FAT32DirBlock dblock;
+	unsigned int fat_val = fatEntry(current_cluster);
+	unsigned int firstsector = getFirstCSector(current_cluster);
+	
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+	int new_cluster;
+
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-
-		if(dblock.name[0] == 0x00)
-			return first_sector + i*sizeof(struct FAT32DirBlock);
-
+		if (dblock.name[0] == 0x00)
+		{
+			printf("HIT\n");
+			return firstsector + i*sizeof(struct FAT32DirBlock);
+		}
 		i++;
+		printf("%d\n",i);
 	}
+
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF)
+		return findEmptyDirEntry(fat_val);
+	// IF Full create a new cluster
+	//and link to new cluster and return new cluster addr
+
+	if(fat_val == 0x0FFFFFF8 || fat_val == 0x0FFFFFFF)
+	{
+		printf("yay\n");
+		new_cluster = findEmptyCluster();
+		linkClusters(current_cluster,new_cluster);
+		return getFirstCSector(new_cluster);
+	}
+	
 	return -1;
 }
 
