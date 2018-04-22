@@ -213,12 +213,9 @@ int findEmptyDirEntry(unsigned int current_cluster)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
 		if (dblock.name[0] == 0x00)
-		{
-			printf("HIT\n");
 			return firstsector + i*sizeof(struct FAT32DirBlock);
-		}
+		
 		i++;
-		printf("%d\n",i);
 	}
 
 
@@ -230,7 +227,6 @@ int findEmptyDirEntry(unsigned int current_cluster)
 
 	if(fat_val == 0x0FFFFFF8 || fat_val == 0x0FFFFFFF)
 	{
-		printf("yay\n");
 		new_cluster = findEmptyCluster();
 		linkClusters(current_cluster,new_cluster);
 		return getFirstCSector(new_cluster);
@@ -245,17 +241,19 @@ int findEmptyDirEntry(unsigned int current_cluster)
 void linkClusters(unsigned int parent_cluster, unsigned int child_cluster)
 {
 	unsigned int zero = 0x0FFFFFF8;
-	int par_offset = boot_sector.reserved_sectors*boot_sector.sector_size + parent_cluster*sizeof(int);
-	int child_offset = boot_sector.reserved_sectors*boot_sector.sector_size + child_cluster*sizeof(int);
 	
+	setFatIndex(parent_cluster,child_cluster);
 
-	fseek(img_fp,par_offset,SEEK_SET);
-	fwrite(&child_cluster,sizeof(unsigned int),1,img_fp);
-	
-	fseek(img_fp,child_offset,SEEK_SET);
-	fwrite(&zero,sizeof(unsigned int),1,img_fp);
+	setFatIndex(child_cluster,zero);
 }
 
+void setFatIndex(unsigned int clus_num, unsigned int val)
+{
+	int offset = boot_sector.reserved_sectors*boot_sector.sector_size + clus_num*sizeof(int);
+	unsigned int zero = 0x0FFFFFF8;
+	fseek(img_fp,offset,SEEK_SET);
+	fwrite(&val,sizeof(unsigned int),1,img_fp);
+}
 
 
 void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock)

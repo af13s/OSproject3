@@ -97,3 +97,4 @@ void linkClusters(unsigned int parent_cluster, unsigned int child_cluster);
 int findEmptyDirEntry(unsigned int current_cluster);
 int findEmptyCluster();
 void mkdir(unsigned int current_cluster, char * dirname);
+void setFatIndex(unsigned int clus_num, unsigned int val);
