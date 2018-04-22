@@ -250,7 +250,6 @@ void linkClusters(unsigned int parent_cluster, unsigned int child_cluster)
 void setFatIndex(unsigned int clus_num, unsigned int val)
 {
 	int offset = boot_sector.reserved_sectors*boot_sector.sector_size + clus_num*sizeof(int);
-	unsigned int zero = 0x0FFFFFF8;
 	fseek(img_fp,offset,SEEK_SET);
 	fwrite(&val,sizeof(unsigned int),1,img_fp);
 }

@@ -12,7 +12,7 @@ void mkdir(unsigned int current_cluster, char * dirname)
 	int newDirCluster;
 
 	temp = getDirectoryEntry(current_cluster,dirname,1);
-	if(!strcmp(formatname(temp.name,1),dirname))
+	if(!strcmp(formatname((char *)temp.name,1),dirname))
 	{
 		printf("\"%s\" ALREADY EXISTS\n", dirname);
 		return;
@@ -49,7 +49,7 @@ void creat(unsigned int current_cluster, char * filename)
 	int newDirCluster;
 
 	temp = getDirectoryEntry(current_cluster,filename,1);
-	if(!strcmp(formatname(temp.name,1),filename))
+	if(!strcmp(formatname((char *)temp.name,1),filename))
 	{
 		printf("\"%s\" ALREADY EXISTS\n", filename);
 		return;
@@ -60,6 +60,7 @@ void creat(unsigned int current_cluster, char * filename)
 	setFatIndex(newDirCluster,0x0FFFFFF8);
 	writeDirectoryEntry(filename,0x03,newDirCluster/0x100,newDirCluster%0x100,&dblock);
 	dblock.FileSize = 0;
+	
 	fseek(img_fp,empty_dir_entry,SEEK_SET);
 	fwrite(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
 }
@@ -69,12 +70,12 @@ int rmdir(unsigned int current_cluster, char * dirname)
 {
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname,1);
 	
-	unsigned int dir_addr,dir_cluster;
+	unsigned int dir_addr;
 	struct FAT32DirBlock temp;
 	unsigned int x = 0;
 	unsigned rm_cluster_num;
 	int dotDirs = (!strcmp(".",dirname) || !strcmp("..",dirname) );
-	if(!strcmp(formatname(dblock.name,1),dirname) && dblock.Attr == 0x10 && !dotDirs)
+	if(!strcmp(formatname((char *)dblock.name,1),dirname) && dblock.Attr == 0x10 && !dotDirs)
 	{
 		x = 0;
 	    rm_cluster_num = dblock.FstClusHI*0x100 + dblock.FstClusLO;
@@ -94,9 +95,9 @@ int rmdir(unsigned int current_cluster, char * dirname)
 		else
 			printf("DIRECTORY NOT EMPTY\n");
 	}
-	else if(!strcmp(formatname(dblock.name,1),dirname) && dblock.Attr != 0x10)
+	else if(!strcmp(formatname((char *)dblock.name,1),dirname) && dblock.Attr != 0x10)
 		printf("\"%s\" NOT A DIRECTORY\n", dirname);
-	else if(strcmp(formatname(dblock.name,1),dirname))
+	else if(strcmp(formatname((char *)dblock.name,1),dirname))
 		printf("\"%s\" DOES NOT EXIST\n", dirname);
 	
 	return -1;

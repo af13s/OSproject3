@@ -57,7 +57,11 @@ void ls(int cluster_num)
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
 
 		if (dblock.name[0] == 0x00)
-			break;
+		{
+			i++;
+			continue;
+		}
+			
 
 		if (dblock.Attr == DIRECTORY) 
 			printf("dir->%s\n",formatname((char *)dblock.name,DIRECTORY));
