@@ -90,7 +90,7 @@ int isValidArg(int cmd, int argNum)
 		case RMDIR:
 			return(argNum == 2);
 		case OPEN:
-			return(argNum == 2);
+			return(argNum == 3);
 		case CLOSE:
 			return(argNum == 2);
 		case READ:

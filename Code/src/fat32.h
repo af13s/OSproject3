@@ -23,6 +23,15 @@
 #define DIRECTORY 16 //HEX x10
 
 
+//File Modes
+#define F_READ 1
+#define F_WRITE 2
+#define F_READWRITE 3
+
+//file struct size
+#define FILE_STRUCT_SIZE 1000
+
+
 
  struct FAT32BootBlock{
  unsigned char jmp[3];
@@ -67,6 +76,18 @@ unsigned short boot_sector_signature;
 
 }__attribute__((packed));
 
+
+ struct File {
+ char * name ;
+ int first_cluster_num;
+ int mode; //file 
+
+};
+
+
+
+
+
 // main
 int parseTokens(char ** tokens);
 int isValidArg(int cmd, int argNum);
@@ -92,4 +113,9 @@ unsigned int fatEntry(int clus_num);
 char * formatname( char * name,int);
 int findEmptyCluster();
 int findEmptyDirEntry(unsigned int current_cluster);
+
+
+void open (char * filename, char * mode , int current_cluster);
+void close (char * filename, int);
+void read (char * filename,int current_cluster,int offset, int sz);
 

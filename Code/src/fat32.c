@@ -3,6 +3,7 @@
 char * commands [] ={"exit", "info", "ls", "cd", "size", "creat", "mkdir", "rm", "rmdir", "open" ,"close" , "read", "write"};
 struct FAT32BootBlock boot_sector;
 FILE * img_fp;
+struct File files [FILE_STRUCT_SIZE] = {0};
 
 int main(int argc, char * argv[])
 {
@@ -12,6 +13,7 @@ int main(int argc, char * argv[])
 	int cmd = -1;
 	unsigned int current_cluster;
 	unsigned char original_cluster;
+
 
 
 	//  
@@ -60,6 +62,19 @@ int main(int argc, char * argv[])
 		    case SIZE:
 		    size_wrapper(current_cluster,tokens[1]);
 		    break;
+
+		    case OPEN:
+		    open (tokens[1], tokens[2], current_cluster);
+		    break;
+
+		    case CLOSE:
+		    close (tokens[1],current_cluster);
+		    break;
+
+		    case READ:
+		    read(tokens[1],current_cluster, atoi(tokens[2]), atoi(tokens[3]));
+		    break;
+
 		}
 	}
 
