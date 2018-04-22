@@ -266,3 +266,37 @@ void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, uns
 
 }
 
+void removeDirEntry(unsigned int current_cluster, char * entry_name,int directory)
+{
+	int i = 0;
+	unsigned int x = 0;
+	struct FAT32DirBlock dblock;
+	struct FAT32DirBlock empty = {0};
+
+	unsigned int fat_val = fatEntry(current_cluster);
+	unsigned int firstsector = getFirstCSector(current_cluster);
+
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(strcmp(formatname((char *)dblock.name,directory),entry_name) == 0)
+		{
+			fseek(img_fp,dentry_addr+i*sizeof(struct FAT32DirBlock), SEEK_SET);
+			fwrite(&x,sizeof(struct FAT32DirBlock),1,img_fp);
+			return;
+		}
+
+		i++;
+	}
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+		removeDirEntry(fat_val, entry_name,directory);
+
+	
+}
+

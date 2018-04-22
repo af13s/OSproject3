@@ -65,6 +65,12 @@ int main(int argc, char * argv[])
 		    case MKDIR:
 		    	mkdir(current_cluster,tokens[1]);
 		    	break;
+		    case CREAT:
+		    	creat(current_cluster,tokens[1]);
+		    	break;
+		    case RMDIR:
+		    	rmdir(current_cluster,tokens[1]);
+		    	break;
 		}
 	}
 
