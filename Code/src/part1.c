@@ -16,6 +16,7 @@ void getInfo(int boolean)
 	 	printf("Root Cluster Num: %d\n\n",boot_sector.bpb_rootcluster);
 	 	printf("sectors_per_cluster %d\n",boot_sector.sectors_per_cluster);
 	 	printf("root_dir_entries %d\n",boot_sector.root_dir_entries);
+	 	printf("fat_size_sectors %d\n",boot_sector.fat_size_sectors);
 	}
 
  	/*
