@@ -98,10 +98,13 @@ int findEmptyDirEntry(unsigned int current_cluster);
 int findEmptyCluster();
 void setFatIndex(unsigned int clus_num, unsigned int val);
 void removeDirEntry(unsigned int current_cluster, char * entry_name,int directory);
-
-
+void deleteCluster(unsigned int parent_cluster, unsigned int child_cluster);
+void removeAllDirEntries(unsigned int current_cluster);
+int emptyDirectory(unsigned int cluster);
+//int LinkedEmptyCluster(unsigned int cluster, int dir_flag);
 //part2
 void mkdir(unsigned int current_cluster, char * dirname);
 void creat(unsigned int current_cluster, char * filename);
-int rmdir(unsigned int current_cluster, char * dirname);
+void rmdir(unsigned int current_cluster, char * dirname);
+void rm(unsigned int current_cluster, char * filename);
 

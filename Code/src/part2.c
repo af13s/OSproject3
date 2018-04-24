@@ -66,30 +66,30 @@ void creat(unsigned int current_cluster, char * filename)
 }
 
 
-int rmdir(unsigned int current_cluster, char * dirname)
+
+
+void rmdir(unsigned int current_cluster, char * dirname)
 {
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname,1);
 	
 	unsigned int dir_addr;
-	struct FAT32DirBlock temp;
 	unsigned int x = 0;
-	unsigned rm_cluster_num;
+	unsigned int rm_cluster_num;
 	int dotDirs = (!strcmp(".",dirname) || !strcmp("..",dirname) );
 	if(!strcmp(formatname((char *)dblock.name,1),dirname) && dblock.Attr == 0x10 && !dotDirs)
 	{
 		x = 0;
+	    
 	    rm_cluster_num = dblock.FstClusHI*0x100 + dblock.FstClusLO;
 		dir_addr = getFirstCSector(rm_cluster_num);
-		// To the begining of third entry
-		fseek(img_fp,dir_addr + 2*sizeof(struct FAT32DirBlock),SEEK_SET);
-		fread(&temp,sizeof(struct FAT32DirBlock),1,img_fp);
-		if(temp.name[0] == 0x00)
+		
+		if(emptyDirectory(rm_cluster_num))
 		{
 			removeDirEntry(current_cluster,dirname,1);
 			fseek(img_fp,dir_addr,SEEK_SET);
 			fwrite(&x,sizeof(struct FAT32DirBlock),2,img_fp);
 			setFatIndex(rm_cluster_num,x);
-			return 1;
+			return;
 			
 		}
 		else
@@ -100,6 +100,20 @@ int rmdir(unsigned int current_cluster, char * dirname)
 	else if(strcmp(formatname((char *)dblock.name,1),dirname))
 		printf("\"%s\" DOES NOT EXIST\n", dirname);
 	
-	return -1;
 }
 
+void rm(unsigned int current_cluster, char * filename)
+{
+
+	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,1);
+
+	unsigned int rm_cluster_num;
+	if(!strcmp(formatname((char *)dblock.name,1),filename) && dblock.Attr != 0x10)
+	{
+		rm_cluster_num = dblock.FstClusHI*0x100 + dblock.FstClusLO;
+		removeAllDirEntries(rm_cluster_num);
+		removeDirEntry(current_cluster,filename,0);
+		setFatIndex(rm_cluster_num,0x00000000);
+	}
+
+}

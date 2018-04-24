@@ -52,6 +52,7 @@ void ls(int cluster_num)
 	unsigned int dentry_addr = firstsector;
 	fseek(img_fp,dentry_addr,SEEK_SET);
 
+	
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);

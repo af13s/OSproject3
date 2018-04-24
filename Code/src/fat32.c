@@ -71,6 +71,8 @@ int main(int argc, char * argv[])
 		    case RMDIR:
 		    	rmdir(current_cluster,tokens[1]);
 		    	break;
+		    case RM:
+		    	rm(current_cluster,tokens[1]);
 		}
 	}
 
