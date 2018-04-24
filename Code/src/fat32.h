@@ -113,21 +113,18 @@ unsigned int fatEntry(int clus_num);
 char * formatname(char * name,int);
 int findEmptyCluster();
 int findEmptyDirEntry(unsigned int current_cluster);
-<<<<<<< HEAD
 
 
 void open (char * filename, char * mode , int current_cluster);
 void close (char * filename, int);
 void read (char * filename,int current_cluster,int offset, int sz);
 
-=======
+
 void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock);
 void linkClusters(unsigned int parent_cluster, unsigned int child_cluster);
 int findEmptyDirEntry(unsigned int current_cluster);
 int findEmptyCluster();
-<<<<<<< HEAD
->>>>>>> d65e74965ce9fb790e37befd4d085749af8b6810
-=======
+
 void setFatIndex(unsigned int clus_num, unsigned int val);
 void removeDirEntry(unsigned int current_cluster, char * entry_name,int directory);
 void deleteCluster(unsigned int parent_cluster, unsigned int child_cluster);
@@ -140,4 +137,4 @@ void creat(unsigned int current_cluster, char * filename);
 void rmdir(unsigned int current_cluster, char * dirname);
 void rm(unsigned int current_cluster, char * filename);
 
->>>>>>> 049af19a0fef4a5dd3fc4733b47c336d9febfe3d
+
