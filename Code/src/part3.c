@@ -2,6 +2,7 @@
 
 extern struct File files [];
 extern FILE * img_fp;
+extern struct FAT32BootBlock boot_sector;
 /*Part 10: open FILENAME MODE
 Opens a file named FILENAME in the current working directory. A file can only be read from or
 written to if it is opened first.
@@ -35,12 +36,12 @@ void open (char * filename, char * mode , int current_cluster)
 		return;
 
 
-	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
+	dblock = getDirectoryEntry(current_cluster, filename,!DIRECTORY);
 
 	if (!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && !(dblock.Attr == DIRECTORY))
 	{
 		file.name = strdup(filename);
-		file.first_cluster_num = getFirstCSector(dblock.FstClusHI*0x100 + dblock.FstClusLO);
+		file.first_cluster_number = current_cluster;
 		file.mode = md;
 	}
 	else
@@ -52,8 +53,15 @@ void open (char * filename, char * mode , int current_cluster)
 	{
 		if ( files[i].name != NULL && !strcmp(filename,files[i].name))
 		{
-			 // error already in the open file table
-			return;
+			if (files[i].mode == md)
+			{
+				printf("File %s is already open in %s mode\n\n", filename, mode);
+				return;
+			}
+			
+				printf("changing %s mode to %s\n\n", filename ,mode);
+				files[i].mode = md;
+				return;
 		}
 	}
 
@@ -99,7 +107,7 @@ void close (char * filename, int current_cluster)
 		{
 			printf("closing file: %s\n\n" , files[i].name);
 			files[i].name = NULL;
-			files[i].first_cluster_num = 0;
+			files[i].first_cluster_number = 0;
 			files[i].mode = 0;
 			break;
 		}
@@ -122,35 +130,28 @@ Print an error if FILENAME does not exist, if FILENAME is a directory, if the fi
 reading, or if OFFSET is larger than the size of the file.*/
 
 
-void read (char * filename,int current_cluster,int offset, int sz)
-{
-	char string [sz];
-	struct FAT32DirBlock dblock;
-	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
+void read (int current_cluster,int offset, int sz, char * string)
+{		
+		unsigned int fat_val = fatEntry(current_cluster);
+		unsigned int current_address = getFirstCSector(current_cluster);
 
-	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
-		//file does not exist
-		return;
+		fseek(img_fp,current_address+offset,SEEK_SET);
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
-	{
-		if (files[i].name == NULL)
-			continue;
-
-		if (!strcmp(filename,files[i].name) && (files[i].mode == F_READ || files[i].mode == F_READWRITE))
+		if (offset + sz > boot_sector.sector_size)
 		{
-			if (size(current_cluster, files[i].name) >= (offset+sz))
-			{
-				fseek(img_fp,files[i].first_cluster_num,SEEK_SET);
-				fread(string,sizeof(string),1,img_fp);
-				break;
-			}
-
+			fread(strlen(string) + string,sizeof(boot_sector.sector_size-offset),1,img_fp);
+			printf("read->%s\n\n", string);
+			sz = sz - (boot_sector.sector_size-offset);
 		}
-	}
+		else
+		{
+			fread(strlen(string) + string,sizeof(string),1,img_fp);
+			printf("read->%s\n\n", string);
+			return;
+		}
 
-	printf("read: %s\n\n",string);
-	// else //error on content didnt perform read
+		if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+			read(fat_val, 0, sz, string);
 }
 
 

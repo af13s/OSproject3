@@ -242,9 +242,7 @@ as the last cluster */
 void linkClusters(unsigned int parent_cluster, unsigned int child_cluster)
 {
 	unsigned int last = 0x0FFFFFF8;
-	
 	setFatIndex(parent_cluster,child_cluster);
-
 	setFatIndex(child_cluster,last);
 }
 

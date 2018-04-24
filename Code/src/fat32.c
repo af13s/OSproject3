@@ -48,32 +48,32 @@ int main(int argc, char * argv[])
 		switch(cmd)
 		{   
 		   	case INFO:
-		    getInfo(0);
-		    break;
+		    	getInfo(0);
+		    	break;
 
 		    case LS:
-		    ls_wrapper(num_toks,current_cluster,original_cluster,tokens);
-		    break;
+		    	ls_wrapper(num_toks,current_cluster,original_cluster,tokens);
+		    	break;
 
 		    case CD:
-		    current_cluster = cd(current_cluster, tokens[1]);
-		    break;
+		    	current_cluster = cd(current_cluster, tokens[1]);
+		    	break;
 
 		    case SIZE:
-		    size_wrapper(current_cluster,tokens[1]);
-		    break;
+		    	size_wrapper(current_cluster,tokens[1]);
+		    	break;
 
 		    case OPEN:
-		    open (tokens[1], tokens[2], current_cluster);
-		    break;
+		    	open (tokens[1], tokens[2], current_cluster);
+		    	break;
 
 		    case CLOSE:
-		    close (tokens[1],current_cluster);
-		    break;
+		   		close (tokens[1],current_cluster);
+		    	break;
 
 		    case READ:
-		    read(tokens[1],current_cluster, atoi(tokens[2]), atoi(tokens[3]));
-		    break;
+		   		read_wrapper(tokens[1],current_cluster,atoi(tokens[2]), atoi(tokens[3]));
+		    	break;
 
 		    case MKDIR:
 		    	mkdir(current_cluster,tokens[1]);
@@ -88,11 +88,6 @@ int main(int argc, char * argv[])
 		    	rm(current_cluster,tokens[1]);
 		}
 	}
-
-
-
-
-
 
 	return 0;
 }
@@ -125,5 +120,60 @@ void size_wrapper(int current_cluster, char * token)
 		printf("file size of %s: %d bytes\n\n" , token, sz);
 	//else error: not found
 }
+
+void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz)
+{
+	int starting_cluster;
+	int n;
+
+	char * string = (char * )calloc(sz+1, sizeof(char));
+	struct FAT32DirBlock dblock;
+	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
+
+	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
+		return; //file does not exist
+
+	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	{
+		if (files[i].name == NULL)
+			continue;
+
+		if (!strcmp(filename,files[i].name) && (files[i].mode == F_READ || files[i].mode == F_READWRITE))
+		{
+
+			if (offset > dblock.FileSize)
+				return; // error
+
+			if ( sz > dblock.FileSize || (sz+offset) > dblock.FileSize)
+			{
+				sz = (dblock.FileSize - offset);
+				free(string);
+				string = (char * )calloc(sz+1, sizeof(char));
+			}
+
+			starting_cluster = files[i].first_cluster_number;
+
+			n = offset/boot_sector.sector_size;
+
+			while (n != 0)
+			{
+				if (starting_cluster == 0x0000000 || starting_cluster == 0xFFFFFFF8)
+					return; // error offset is invalid for file
+
+				starting_cluster = fatEntry(starting_cluster);
+			}
+
+			//starting cluster now represents the nth cluster that we need to start reading at
+
+			read(starting_cluster, (offset % boot_sector.sector_size), sz, string);
+
+			break; // file found performed operations and ending loop
+		}
+	}
+
+	printf("read->%s\n\n", string);
+}
+
+
 
 

@@ -79,13 +79,10 @@ unsigned short boot_sector_signature;
 
  struct File {
  char * name ;
- int first_cluster_num;
+ int first_cluster_number;
  int mode; //file 
 
 };
-
-
-
 
 
 // main
@@ -117,7 +114,9 @@ int findEmptyDirEntry(unsigned int current_cluster);
 
 void open (char * filename, char * mode , int current_cluster);
 void close (char * filename, int);
-void read (char * filename,int current_cluster,int offset, int sz);
+void read(int current_cluster,int offset, int sz, char * string);
+void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz);
+
 
 
 void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock);
