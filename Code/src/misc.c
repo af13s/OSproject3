@@ -199,49 +199,210 @@ int findEmptyCluster()
 //return the address of the emptry directory entry if found; or -1 
 int findEmptyDirEntry(unsigned int current_cluster)
 {
-	unsigned int first_sector = getFirstCSector(current_cluster);
-	unsigned int dentry_addr = first_sector;
-	fseek(img_fp,dentry_addr,SEEK_SET);
-	struct FAT32DirBlock dblock;
+	
 	int i = 0;
+	struct FAT32DirBlock dblock;
+	unsigned int fat_val = fatEntry(current_cluster);
+	unsigned int firstsector = getFirstCSector(current_cluster);
+	
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+	int new_cluster;
+
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{
 		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
-
-		if(dblock.name[0] == 0x00)
-			return first_sector + i*sizeof(struct FAT32DirBlock);
-
+		if (dblock.name[0] == 0x00)
+			return firstsector + i*sizeof(struct FAT32DirBlock);
+		
 		i++;
 	}
+
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF)
+		return findEmptyDirEntry(fat_val);
+	// IF Full create a new cluster
+	//and link to new cluster and return new cluster addr
+
+	if(fat_val == 0x0FFFFFF8 || fat_val == 0x0FFFFFFF)
+	{
+		new_cluster = findEmptyCluster();
+		linkClusters(current_cluster,new_cluster);
+		return getFirstCSector(new_cluster);
+	}
+	
 	return -1;
 }
 
 
 
-
+/* Links the parent cluster to the child cluster and sets the child
+as the last cluster */
 void linkClusters(unsigned int parent_cluster, unsigned int child_cluster)
 {
-	unsigned int zero = 0x0FFFFFF8;
-	int par_offset = boot_sector.reserved_sectors*boot_sector.sector_size + parent_cluster*sizeof(int);
-	int child_offset = boot_sector.reserved_sectors*boot_sector.sector_size + child_cluster*sizeof(int);
+	unsigned int last = 0x0FFFFFF8;
 	
+	setFatIndex(parent_cluster,child_cluster);
 
-	fseek(img_fp,par_offset,SEEK_SET);
-	fwrite(&child_cluster,sizeof(unsigned int),1,img_fp);
-	
-	fseek(img_fp,child_offset,SEEK_SET);
-	fwrite(&zero,sizeof(unsigned int),1,img_fp);
+	setFatIndex(child_cluster,last);
 }
 
+/* Sets FAT[clus_num] = val */
+void setFatIndex(unsigned int clus_num, unsigned int val)
+{
+	int offset = boot_sector.reserved_sectors*boot_sector.sector_size + clus_num*sizeof(int);
+	fseek(img_fp,offset,SEEK_SET);
+	fwrite(&val,sizeof(unsigned int),1,img_fp);
+}
 
-
+/*Writes to a FAT32DirBlock struct*/
 void writeDirectoryEntry(char * name, unsigned char attr, unsigned short HI, unsigned short LO, struct FAT32DirBlock * dblock)
 {
 	memset(dblock,0,sizeof(struct FAT32DirBlock));
-	strcpy(dblock->name,name);
+	strcpy((char *)dblock->name,name);
 	dblock->Attr = attr;
 	dblock->FstClusHI = HI;
 	dblock->FstClusLO = LO;
 
+}
+
+/* Removes directory entry with name entry_name from the cluster   */
+void removeDirEntry(unsigned int current_cluster, char * entry_name,int directory)
+{
+	int i = 0;
+	unsigned int x = 0;
+	struct FAT32DirBlock dblock;
+	
+
+	unsigned int fat_val = fatEntry(current_cluster);
+	unsigned int firstsector = getFirstCSector(current_cluster);
+
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(strcmp(formatname((char *)dblock.name,directory),entry_name) == 0)
+		{
+			fseek(img_fp,dentry_addr+i*sizeof(struct FAT32DirBlock), SEEK_SET);
+			fwrite(&x,sizeof(struct FAT32DirBlock),1,img_fp);
+			return;
+		}
+
+		i++;
+	}
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+		removeDirEntry(fat_val, entry_name,directory);
+
+	
+}
+
+/* Deletes child cluster and sets the parent cluster as the last cluster*/
+void deleteCluster(unsigned int parent_cluster, unsigned int child_cluster)
+{
+	unsigned int last = 0x0FFFFFF8;
+	unsigned int zero = 0x00000000;
+	setFatIndex(parent_cluster,last);
+	setFatIndex(child_cluster,zero);
+}
+
+/*Removes all directory entries from the chain of clusters 
+and deletes all clusters that are empty as a result*/
+void removeAllDirEntries(unsigned int current_cluster)
+{
+	int i = 0;
+	unsigned int x = 0;
+	struct FAT32DirBlock dblock;
+
+
+	unsigned int next_val = fatEntry(current_cluster);
+	unsigned int firstsector = getFirstCSector(current_cluster);
+
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+
+	if(next_val != 0x0FFFFFF8 && next_val != 0x0FFFFFFF)
+		removeAllDirEntries(next_val);
+
+
+
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+		fseek(img_fp,dentry_addr+i*sizeof(struct FAT32DirBlock), SEEK_SET);
+		fwrite(&x,sizeof(struct FAT32DirBlock),1,img_fp);
+		i++;
+	}
+
+	deleteCluster(current_cluster,next_val);
+	
+}
+
+/*
+int LinkedEmptyCluster(unsigned int cluster, int dir_flag)
+{
+	unsigned int dir_addr = getFirstCSector(cluster);
+	struct FAT32DirBlock dblock;
+	int i = 0;
+	if(dir_flag == 0)
+		fseek(img_fp,dir_addr,SEEK_SET);
+	else
+	{
+		i = 2;
+		fseek(img_fp,dir_addr + 2*sizeof(struct FAT32DirBlock),SEEK_SET);
+	}
+	
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(dblock.name[0] != 0x00)
+		{
+			return 0;
+		}
+
+		i++;
+	}
+	return 1;
+
+}*/
+
+
+int emptyDirectory(unsigned int cluster)
+{
+	int fat_val = fatEntry(cluster);
+	int i = 0;
+	struct FAT32DirBlock dblock;
+	int result = 1;
+
+	unsigned int dir_addr = getFirstCSector(cluster);
+	
+	fseek(img_fp,dir_addr,SEEK_SET);
+	
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&dblock,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if (dblock.name[0] != 0x00 && dblock.name[0] != '.')
+		{
+			result = 0;
+			return result;
+		}
+			
+		i++;
+	}
+
+	if(fat_val == 0x0FFFFFF8 || fat_val == 0x0FFFFFFF )
+		return result;
+
+	
+	return emptyDirectory(fat_val);
+	
+	
 }
 

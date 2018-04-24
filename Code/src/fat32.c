@@ -75,6 +75,17 @@ int main(int argc, char * argv[])
 		    read(tokens[1],current_cluster, atoi(tokens[2]), atoi(tokens[3]));
 		    break;
 
+		    case MKDIR:
+		    	mkdir(current_cluster,tokens[1]);
+		    	break;
+		    case CREAT:
+		    	creat(current_cluster,tokens[1]);
+		    	break;
+		    case RMDIR:
+		    	rmdir(current_cluster,tokens[1]);
+		    	break;
+		    case RM:
+		    	rm(current_cluster,tokens[1]);
 		}
 	}
 
