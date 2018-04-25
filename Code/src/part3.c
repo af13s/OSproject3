@@ -29,7 +29,7 @@ void open (char * filename, char * mode , int current_cluster)
 		md = F_READ;
 	else if (!strcmp(mode ,"write-only"))
 		md = F_WRITE;
-	else if (!strcmp(mode ,"read and write") || !strcmp(mode ,"write and read"))
+	else if (!strcmp(mode ,"readandwrite") || !strcmp(mode ,"write and read"))
 		md = F_READWRITE;
 	else
 		//mode not valid
@@ -41,7 +41,7 @@ void open (char * filename, char * mode , int current_cluster)
 	if (!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && !(dblock.Attr == DIRECTORY))
 	{
 		file.name = strdup(filename);
-		file.first_cluster_number = current_cluster;
+		file.first_cluster_number = dblock.FstClusHI*0x100 + dblock.FstClusLO;
 		file.mode = md;
 	}
 	else
@@ -85,35 +85,26 @@ Closes a file named FILENAME. Needs to remove the file entry from the open file 
 
 Print an error if the file is not opened, or if the file does not exist.*/
 
-void close (char * filename, int current_cluster)
-{
-	struct FAT32DirBlock dblock;
-
-	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
-
-	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
-		//error msg file does not exist
-		return;
-	else if (dblock.Attr == DIRECTORY)
-		//not a file
-		return;
+void close (char * filename)
+{	
 
 	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 			continue;
-
+			
 		if (!strcmp(filename,files[i].name))
 		{
 			printf("closing file: %s\n\n" , files[i].name);
 			files[i].name = NULL;
 			files[i].first_cluster_number = 0;
 			files[i].mode = 0;
-			break;
+			return;
 		}
+
 	}
 
-	 //error_msgs file not open
+	return; //not found in open file table.
 }
 
 
@@ -139,14 +130,12 @@ void read (int current_cluster,int offset, int sz, char * string)
 
 		if (offset + sz > boot_sector.sector_size)
 		{
-			fread(strlen(string) + string,sizeof(boot_sector.sector_size-offset),1,img_fp);
-			printf("read->%s\n\n", string);
+			fread(strlen(string) + string,boot_sector.sector_size-offset,1,img_fp);
 			sz = sz - (boot_sector.sector_size-offset);
 		}
 		else
 		{
-			fread(strlen(string) + string,sizeof(string),1,img_fp);
-			printf("read->%s\n\n", string);
+			fread(strlen(string) + string,sz,1,img_fp);
 			return;
 		}
 
@@ -173,7 +162,38 @@ If STRING is smaller than SIZE, write the remaining characters as ASCII 0
 Print an error if FILENAME does not exist, if FILENAME is a directory, or if the file is not opened for
 writing.*/
 
-int write (char * filename, int offset, int size, char * string)
+void write (unsigned int current_cluster, unsigned int offset, unsigned int sz, char * string)
 {
-	return 0;
+	unsigned int fat_val = fatEntry(current_cluster);
+	unsigned int current_address = getFirstCSector(current_cluster);
+	unsigned int new_cluster;
+	unsigned int string_offset;
+
+
+	fseek(img_fp,current_address+offset,SEEK_SET);
+
+	if (offset + sz > boot_sector.sector_size)
+	{
+		fwrite(string,boot_sector.sector_size-offset,1,img_fp);
+		string_offset = (boot_sector.sector_size-offset);
+		sz = sz - (boot_sector.sector_size-offset);
+	}
+	else
+	{
+		fwrite(string,sz,1,img_fp);
+		return;
+	}
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000)
+	{
+
+		write(fat_val, 0, sz, string+string_offset);
+	}
+
+	if(fat_val == 0x0FFFFFF8 || fat_val == 0x0FFFFFFF )
+	{
+		new_cluster = findEmptyCluster();
+		linkClusters(current_cluster,new_cluster);
+		write(new_cluster, 0, sz, string+string_offset);
+	}
 }

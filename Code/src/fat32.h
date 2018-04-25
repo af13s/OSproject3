@@ -113,9 +113,13 @@ int findEmptyDirEntry(unsigned int current_cluster);
 
 
 void open (char * filename, char * mode , int current_cluster);
-void close (char * filename, int);
-void read(int current_cluster,int offset, int sz, char * string);
+void close (char * filename);
+
 void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz);
+void read(int current_cluster,int offset, int sz, char * string);void read(int current_cluster,int offset, int sz, char * string);
+
+void write_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz, char * string);
+void write (unsigned int current_cluster,unsigned int offset, unsigned int sz, char * string);
 
 
 

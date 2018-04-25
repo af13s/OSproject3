@@ -68,11 +68,15 @@ int main(int argc, char * argv[])
 		    	break;
 
 		    case CLOSE:
-		   		close (tokens[1],current_cluster);
+		   		close (tokens[1]);
 		    	break;
 
 		    case READ:
 		   		read_wrapper(tokens[1],current_cluster,atoi(tokens[2]), atoi(tokens[3]));
+		    	break;
+
+		    case WRITE:
+		   		write_wrapper(tokens[1],current_cluster,atoi(tokens[2]), atoi(tokens[3]), tokens[4]);
 		    	break;
 
 		    case MKDIR:
@@ -161,6 +165,7 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 					return; // error offset is invalid for file
 
 				starting_cluster = fatEntry(starting_cluster);
+				n--;
 			}
 
 			//starting cluster now represents the nth cluster that we need to start reading at
@@ -173,6 +178,59 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 
 	printf("read->%s\n\n", string);
 }
+
+void write_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz, char * string)
+{
+	int starting_cluster;
+	int n;
+	char * newstring = strdup(string);
+
+	if (strlen(string) <= sz)
+	{
+		newstring = (char *)calloc(sz, sizeof(char));
+		strcpy(newstring,string);
+	}
+
+	struct FAT32DirBlock dblock;
+	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
+
+	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
+		return; //file does not exist
+
+	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	{
+		if (files[i].name == NULL)
+			continue;
+
+		if (!strcmp(filename,files[i].name) && (files[i].mode == F_WRITE || files[i].mode == F_READWRITE))
+		{
+
+			if (offset > dblock.FileSize)
+				return; // error
+
+			starting_cluster = files[i].first_cluster_number;
+
+			n = offset/boot_sector.sector_size;
+
+			while (n != 0)
+			{
+				if (starting_cluster == 0x0000000 || starting_cluster == 0xFFFFFFF8)
+					return; // error offset is invalid for file
+
+				starting_cluster = fatEntry(starting_cluster);
+				n--;
+			}
+
+			//starting cluster now represents the nth cluster that we need to start reading at
+
+			write(starting_cluster, (offset % boot_sector.sector_size), sz, newstring);
+
+			break; // file found performed operations and ending loop
+		}
+	}
+	free(newstring);
+}
+
 
 
 
