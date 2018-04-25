@@ -204,9 +204,15 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 
 		if (!strcmp(filename,files[i].name) && (files[i].mode == F_WRITE || files[i].mode == F_READWRITE))
 		{
-
 			if (offset > dblock.FileSize)
 				return; // error
+
+			if(offset + sz > dblock.FileSize)
+			{
+				dblock.FileSize = offset + sz;
+				dblock.Attr = 0x20;
+				updateDirectoryEntry(dblock,current_cluster,!DIRECTORY);
+			}
 
 			starting_cluster = files[i].first_cluster_number;
 

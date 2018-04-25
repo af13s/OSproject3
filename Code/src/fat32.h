@@ -105,11 +105,10 @@ unsigned int size (unsigned int current_cluster, char * filename);
 
 // misc
 void error_msg(int cmd, int tokens);
-int getFirstCSector(int clus_num);
+unsigned int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
 char * formatname(char * name,int);
-int findEmptyCluster();
-int findEmptyDirEntry(unsigned int current_cluster);
+void updateDirectoryEntry(struct FAT32DirBlock block, unsigned int cluster_num, int directory);
 
 
 void open (char * filename, char * mode , int current_cluster);

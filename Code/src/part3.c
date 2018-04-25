@@ -25,11 +25,11 @@ void open (char * filename, char * mode , int current_cluster)
 	struct FAT32DirBlock dblock;
 	int md;
 
-	if (!strcmp(mode ,"read-only"))
+	if (!strcmp(mode ,"r"))
 		md = F_READ;
-	else if (!strcmp(mode ,"write-only"))
+	else if (!strcmp(mode ,"w"))
 		md = F_WRITE;
-	else if (!strcmp(mode ,"readandwrite") || !strcmp(mode ,"write and read"))
+	else if (!strcmp(mode ,"rw") || !strcmp(mode ,"wr"))
 		md = F_READWRITE;
 	else
 		//mode not valid

@@ -1,0 +1,6 @@
+creat newfile
+open newfile rw
+open newfile wr
+write newfile 0 80 helloworldthisiscopypaste
+read newfile 0 80
+exit

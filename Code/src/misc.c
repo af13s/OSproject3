@@ -4,21 +4,11 @@ extern struct FAT32BootBlock boot_sector;
 extern FILE * img_fp;
 extern char * commands [];
 
-
-void printDir(struct FAT32BootBlock * boot_sector, FILE * img_fp)
-{
-
-	//int fds = boot_sector->reserved_sectors + (boot_sector->number_of_fats* boot_sector->fat_size_sectors);
-	//int fsc = ((boot_sector->bpb_rootcluster -2)*boot_sector->sectors_per_cluster) + fds;
-	//int x  = fseek(img_fp, fsc,SEEK_SET);
-	//fread()
-}
-
 // returns FAT[clus_num]
 unsigned int fatEntry(int clus_num)
 {
-	int val;
-	int offset = boot_sector.reserved_sectors*boot_sector.sector_size + clus_num*sizeof(int);
+	unsigned int val;
+	unsigned int offset = boot_sector.reserved_sectors*boot_sector.sector_size + clus_num*sizeof(int);
 	fseek(img_fp,offset,SEEK_SET);
 	fread(&val,sizeof(int),1,img_fp);
 	return val;
@@ -26,7 +16,7 @@ unsigned int fatEntry(int clus_num)
 
 
 //Returns the First sector of the cluster passed in
-int getFirstCSector(int clus_num)
+unsigned int getFirstCSector(int clus_num)
 {
 	
 	unsigned int FirstDataSector = boot_sector.reserved_sectors + (boot_sector.number_of_fats* boot_sector.bpb_FATSz32);
@@ -404,3 +394,35 @@ int emptyDirectory(unsigned int cluster)
 	
 }
 
+
+void updateDirectoryEntry(struct FAT32DirBlock block, unsigned int cluster_num, int directory)
+{
+	int i = 0;
+	struct FAT32DirBlock temp_block;
+	
+	unsigned int fat_val = fatEntry(cluster_num);
+	unsigned int firstsector = getFirstCSector(cluster_num);
+
+	unsigned int dentry_addr = firstsector;
+	fseek(img_fp,dentry_addr,SEEK_SET);
+
+	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
+	{
+		fread(&temp_block,sizeof(struct FAT32DirBlock),1,img_fp);
+
+		if(strcmp(formatname((char *)temp_block.name,directory),formatname((char *)block.name,directory)) == 0)
+		{
+			fseek(img_fp,dentry_addr + i*sizeof(struct FAT32DirBlock),SEEK_SET);
+			fwrite(&block,sizeof(struct FAT32DirBlock),1,img_fp);
+			return;		
+		}
+
+		i++;
+	}
+
+
+	if(fat_val != 0x0FFFFFF8 && fat_val != 0x0FFFFFFF && fat_val != 0x00000000 )
+		updateDirectoryEntry(block, fat_val, directory);
+
+	
+}

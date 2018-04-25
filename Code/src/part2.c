@@ -58,7 +58,7 @@ void creat(unsigned int current_cluster, char * filename)
 	empty_dir_entry = findEmptyDirEntry(current_cluster);
 	newDirCluster = findEmptyCluster();
 	setFatIndex(newDirCluster,0x0FFFFFF8);
-	writeDirectoryEntry(filename,0x03,newDirCluster/0x100,newDirCluster%0x100,&dblock);
+	writeDirectoryEntry(filename,0x20,newDirCluster/0x100,newDirCluster%0x100,&dblock);
 	dblock.FileSize = 0;
 	
 	fseek(img_fp,empty_dir_entry,SEEK_SET);
