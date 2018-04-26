@@ -14,7 +14,7 @@ int main(int argc, char * argv[])
 	unsigned int current_cluster;
 	unsigned char original_cluster;
 
-	// open image file  
+	/* open image file*/  
 	img_fp = fopen(argv[1],"rb+");
 
 	if(img_fp == NULL)
@@ -133,6 +133,7 @@ void size_wrapper(int current_cluster, char * token)
 
 void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz)
 {
+	int i;
 	int starting_cluster;
 	int n;
 
@@ -146,7 +147,7 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 		return;
 	}
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for (i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 			continue;
@@ -197,8 +198,10 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 
 void write_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz, char * string)
 {
+	int i;
 	int starting_cluster;
 	int n;
+	struct FAT32DirBlock dblock;
 	char * newstring = strdup(string);
 
 	if (strlen(string) <= sz)
@@ -207,7 +210,7 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 		strcpy(newstring,string);
 	}
 
-	struct FAT32DirBlock dblock;
+	
 	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
 
 	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
@@ -216,7 +219,7 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 		return;
 	}
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 			continue;

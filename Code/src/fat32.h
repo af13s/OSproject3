@@ -20,7 +20,8 @@
 #define NUMCMD 13
 #define BOOTVARNUM 1
 
-#define DIRECTORY 16 //HEX x10
+// HEX 10
+#define DIRECTORY 16 
 
 
 //File Modes
@@ -80,7 +81,7 @@ unsigned short boot_sector_signature;
  struct File {
  char * name ;
  int first_cluster_number;
- int mode; //file 
+ int mode; 
 
 };
 

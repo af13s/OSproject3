@@ -4,7 +4,7 @@ extern struct FAT32BootBlock boot_sector;
 extern FILE * img_fp;
 extern char * commands [];
 
-// returns FAT[clus_num]
+/*returns FAT[clus_num]*/
 unsigned int fatEntry(int clus_num)
 {
 	unsigned int val;
@@ -200,12 +200,13 @@ int findEmptyDirEntry(unsigned int current_cluster)
 	
 	int i = 0;
 	struct FAT32DirBlock dblock;
+	int new_cluster;
 	unsigned int fat_val = fatEntry(current_cluster);
 	unsigned int firstsector = getFirstCSector(current_cluster);
 	
 	unsigned int dentry_addr = firstsector;
 	fseek(img_fp,dentry_addr,SEEK_SET);
-	int new_cluster;
+	
 
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{

@@ -21,6 +21,7 @@ Print an error if the file is already opened, if the file does not exist, or an 
 
 void open (char * filename, char * mode , int current_cluster)
 {
+	int i;
 	struct File file;
 	struct FAT32DirBlock dblock;
 	int md;
@@ -55,7 +56,7 @@ void open (char * filename, char * mode , int current_cluster)
 		
 		
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++ )
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++ )
 	{
 		if ( files[i].name != NULL && !strcmp(filename,files[i].name))
 		{
@@ -71,7 +72,7 @@ void open (char * filename, char * mode , int current_cluster)
 		}
 	}
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 		{
@@ -91,8 +92,9 @@ Print an error if the file is not opened, or if the file does not exist.*/
 
 void close (char * filename)
 {	
+	int i;
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 			continue;
