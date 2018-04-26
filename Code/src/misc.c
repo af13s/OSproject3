@@ -29,10 +29,10 @@ unsigned int getFirstCSector(int clus_num)
 
 char * formatname(char * name, int directory)
 {	
-	
+	int i;
 	 char * formatted = strdup(name);
 
-  	for(int i = 0; i < strlen(name); i++)
+  	for( i = 0; i < strlen(name); i++)
   	{
   		if (isspace(name[i]) && directory)
   			formatted[i] = '\0';
