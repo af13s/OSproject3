@@ -104,7 +104,8 @@ unsigned int size (unsigned int current_cluster, char * filename);
 
 
 // misc
-void error_msg(int cmd, int tokens);
+void error_msg(char * string);
+void cmd_error_msg(int cmd,int num_toks,int isValid);
 unsigned int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
 char * formatname(char * name,int);

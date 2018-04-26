@@ -3,7 +3,7 @@
 char * commands [] ={"exit", "info", "ls", "cd", "size", "creat", "mkdir", "rm", "rmdir", "open" ,"close" , "read", "write"};
 struct FAT32BootBlock boot_sector;
 FILE * img_fp;
-struct File files [FILE_STRUCT_SIZE] = {0};
+struct File files [FILE_STRUCT_SIZE] = {{0}};
 
 int main(int argc, char * argv[])
 {
@@ -14,13 +14,12 @@ int main(int argc, char * argv[])
 	unsigned int current_cluster;
 	unsigned char original_cluster;
 
-
-
-	//  
+	// open image file  
 	img_fp = fopen(argv[1],"rb+");
+
 	if(img_fp == NULL)
 	{
-		printf("Image could not be opened\n");
+		error_msg("Image could not be opened");
 		return 1;
 	}
 
@@ -40,7 +39,7 @@ int main(int argc, char * argv[])
 		
 		if (!isValidArg(cmd, num_toks))
 		{
-			error_msg(cmd,num_toks);
+			cmd_error_msg(cmd,num_toks,isValidArg(cmd, num_toks));
 			continue;
 		}
 
@@ -103,26 +102,33 @@ int main(int argc, char * argv[])
 void ls_wrapper(int num_toks, int current_cluster, int original_cluster, char ** tokens)
 {
 	if (num_toks == 1)
-		    	ls(current_cluster);
-		    else
-		    {
-		    	if ( cd(current_cluster, tokens[1]) != current_cluster)
-		    	{
-			    	original_cluster = current_cluster;
-			    	current_cluster = cd(current_cluster, tokens[1]);
-			    	ls(current_cluster);
-			    	current_cluster = original_cluster;
-			    }
-			    //else error_msg();
-		    }
+		ls(current_cluster);
+    else
+    {
+    	if (!strcmp(tokens[1],"."))
+    	{
+    		ls(current_cluster);
+    		return;
+    	}
+    	if ( cd(current_cluster, tokens[1]) != current_cluster)
+    	{
+	    	original_cluster = current_cluster;
+	    	current_cluster = cd(current_cluster, tokens[1]);
+	    	ls(current_cluster);
+	    	current_cluster = original_cluster;
+	    }
+	    else
+	    	error_msg("Not a directory");
+    }
 }
 
 void size_wrapper(int current_cluster, char * token)
 {
 	unsigned int sz = size(current_cluster,token);
 	if (sz > 0)
-		printf("file size of %s: %d bytes\n\n" , token, sz);
-	//else error: not found
+		printf("file size of %s: %d bytes\n\n" , token, (sz-1));
+
+	error_msg("Not a file");
 }
 
 void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz)
@@ -135,7 +141,10 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
 
 	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
-		return; //file does not exist
+	{
+		 error_msg("file does not exist");
+		return;
+	}
 
 	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
@@ -146,7 +155,11 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 		{
 
 			if (offset > dblock.FileSize)
-				return; // error
+			{
+				error_msg("Offset larger than File Size");
+				return;
+
+			}
 
 			if ( sz > dblock.FileSize || (sz+offset) > dblock.FileSize)
 			{
@@ -162,7 +175,10 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 			while (n != 0)
 			{
 				if (starting_cluster == 0x0000000 || starting_cluster == 0xFFFFFFF8)
-					return; // error offset is invalid for file
+				{
+					error_msg("error accessing file data location");
+					return; 
+				}
 
 				starting_cluster = fatEntry(starting_cluster);
 				n--;
@@ -195,7 +211,10 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
 
 	if (strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
-		return; //file does not exist
+	{
+		error_msg("file does not exist");
+		return;
+	}
 
 	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
@@ -205,7 +224,10 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 		if (!strcmp(filename,files[i].name) && (files[i].mode == F_WRITE || files[i].mode == F_READWRITE))
 		{
 			if (offset > dblock.FileSize)
-				return; // error
+			{
+				error_msg("Offset larger than File Size");
+				return;
+			}
 
 			if(offset + sz > dblock.FileSize)
 			{
@@ -221,7 +243,10 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 			while (n != 0)
 			{
 				if (starting_cluster == 0x0000000 || starting_cluster == 0xFFFFFFF8)
-					return; // error offset is invalid for file
+				{
+					error_msg("error writing file data");
+					return;
+				}
 
 				starting_cluster = fatEntry(starting_cluster);
 				n--;

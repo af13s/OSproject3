@@ -118,9 +118,17 @@ int parseTokens(char ** tokens)
 	return num_toks;
 }
 
-void error_msg(int cmd,int num_toks)
+void error_msg(char * string)
 {
+	printf("%s\n\n", string);
+}
 
+void cmd_error_msg(int cmd,int num_toks,int isValid)
+{
+	if (!isValid)
+		printf("Invalid Command\n\n");
+	if (isValid)
+		printf("Unexpected number of args: %d\n\n", num_toks);
 }
 
 
@@ -143,7 +151,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
-	struct FAT32DirBlock empty = {0};
+	struct FAT32DirBlock empty = {{0}};
 
 	unsigned int fat_val = fatEntry(cluster_num);
 	unsigned int firstsector = getFirstCSector(cluster_num);
