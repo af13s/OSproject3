@@ -20,7 +20,6 @@
 #define NUMCMD 13
 #define BOOTVARNUM 1
 
-//HEX 10
 #define DIRECTORY 16 
 
 

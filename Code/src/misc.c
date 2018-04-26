@@ -15,7 +15,7 @@ unsigned int fatEntry(int clus_num)
 }
 
 
-//Returns the First sector of the cluster passed in
+/*Returns the First sector of the cluster passed in*/
 unsigned int getFirstCSector(int clus_num)
 {
 	
