@@ -177,7 +177,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 }
 
 
-//return first empty cluster number
+/*return first empty cluster number*/
 int findEmptyCluster()
 {
 	/*0,1are reserved*/
@@ -194,7 +194,7 @@ int findEmptyCluster()
 
 
 
-//return the address of the emptry directory entry if found; or -1 
+/*return the address of the emptry directory entry if found; or -1*/ 
 int findEmptyDirEntry(unsigned int current_cluster)
 {
 	
