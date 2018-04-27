@@ -60,7 +60,7 @@ void ls(int cluster_num)
 unsigned int cd (unsigned int current_cluster, char * dirname)
 {
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname,DIRECTORY);
-	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && dblock.Attr == DIRECTORY)	
+	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && (dblock.Attr == DIRECTORY))	
 	{
 		if (dblock.FstClusHI*0x100 + dblock.FstClusLO == 0)
 			return boot_sector.bpb_rootcluster;
@@ -68,7 +68,10 @@ unsigned int cd (unsigned int current_cluster, char * dirname)
 		return dblock.FstClusHI*0x100 + dblock.FstClusLO;
 	}
 	else
+	{
+		error_msg("Directory not found");
 		return current_cluster;
+	}
 
 }
 
