@@ -69,7 +69,8 @@ unsigned int cd (unsigned int current_cluster, char * dirname)
 	}
 	else
 	{
-		error_msg("Directory not found");
+		if (strcmp(dirname,"."))
+			error_msg("Directory not found");
 		return current_cluster;
 	}
 
