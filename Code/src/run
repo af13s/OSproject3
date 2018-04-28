@@ -2,5 +2,5 @@
 
 make
 cp fat32.img fat32cpy.img
-./a.out fat32cpy.img < testcmds
+./a.out fat32cpy.img
 rm -r fat32cpy.img

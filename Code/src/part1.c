@@ -65,7 +65,7 @@ void ls(int cluster_num)
 			
 
 		if (dblock.Attr == DIRECTORY) 
-			printf("dir->%s\n",formatname((char *)dblock.name,DIRECTORY));
+			printf("\033[34m%s\x1B[0m\n",formatname((char *)dblock.name,DIRECTORY));
 		else
 			printf("%s\n",formatname((char *)dblock.name,!DIRECTORY));
 

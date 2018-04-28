@@ -2,6 +2,7 @@
 
 extern struct FAT32BootBlock boot_sector;
 extern FILE * img_fp;
+extern struct File files [];
 
 void mkdir(unsigned int current_cluster, char * dirname)
 {
@@ -114,6 +115,22 @@ void rm(unsigned int current_cluster, char * filename)
 		removeAllDirEntries(rm_cluster_num);
 		removeDirEntry(current_cluster,filename,0);
 		setFatIndex(rm_cluster_num,0x00000000);
+
+		for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+		{
+			if (files[i].name == NULL)
+				continue;
+				
+			if (!strcmp(filename,files[i].name))
+			{
+				files[i].name = NULL;
+				files[i].first_cluster_number = 0;
+				files[i].mode = 0;
+				return;
+			}
+
+		}
+
 	}
 
 }
