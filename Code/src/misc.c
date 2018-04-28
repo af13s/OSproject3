@@ -4,7 +4,7 @@ extern struct FAT32BootBlock boot_sector;
 extern FILE * img_fp;
 extern char * commands [];
 
-// returns FAT[clus_num]
+/*returns FAT[clus_num]*/
 unsigned int fatEntry(int clus_num)
 {
 	unsigned int val;
@@ -15,7 +15,7 @@ unsigned int fatEntry(int clus_num)
 }
 
 
-//Returns the First sector of the cluster passed in
+/*Returns the First sector of the cluster passed in*/
 unsigned int getFirstCSector(int clus_num)
 {
 	
@@ -29,10 +29,10 @@ unsigned int getFirstCSector(int clus_num)
 
 char * formatname(char * name, int directory)
 {	
-	
+	int i;
 	 char * formatted = strdup(name);
 
-  	for(int i = 0; i < strlen(name); i++)
+  	for( i = 0; i < strlen(name); i++)
   	{
   		if (isspace(name[i]) && directory)
   			formatted[i] = '\0';
@@ -118,9 +118,17 @@ int parseTokens(char ** tokens)
 	return num_toks;
 }
 
-void error_msg(int cmd,int num_toks)
+void error_msg(char * string)
 {
+	printf("%s\n\n", string);
+}
 
+void cmd_error_msg(int cmd,int num_toks,int isValid)
+{
+	if (!isValid)
+		printf("Invalid Command\n\n");
+	if (isValid)
+		printf("Unexpected number of args: %d\n\n", num_toks);
 }
 
 
@@ -143,7 +151,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 {
 	int i = 0;
 	struct FAT32DirBlock dblock;
-	struct FAT32DirBlock empty = {0};
+	struct FAT32DirBlock empty = {{0}};
 
 	unsigned int fat_val = fatEntry(cluster_num);
 	unsigned int firstsector = getFirstCSector(cluster_num);
@@ -169,7 +177,7 @@ struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * entry_na
 }
 
 
-//return first empty cluster number
+/*return first empty cluster number*/
 int findEmptyCluster()
 {
 	/*0,1are reserved*/
@@ -186,18 +194,19 @@ int findEmptyCluster()
 
 
 
-//return the address of the emptry directory entry if found; or -1 
+/*return the address of the emptry directory entry if found; or -1*/ 
 int findEmptyDirEntry(unsigned int current_cluster)
 {
 	
 	int i = 0;
 	struct FAT32DirBlock dblock;
+	int new_cluster;
 	unsigned int fat_val = fatEntry(current_cluster);
 	unsigned int firstsector = getFirstCSector(current_cluster);
 	
 	unsigned int dentry_addr = firstsector;
 	fseek(img_fp,dentry_addr,SEEK_SET);
-	int new_cluster;
+	
 
 	while(i*sizeof(struct FAT32DirBlock) < boot_sector.sector_size)
 	{

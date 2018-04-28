@@ -21,6 +21,7 @@ Print an error if the file is already opened, if the file does not exist, or an 
 
 void open (char * filename, char * mode , int current_cluster)
 {
+	int i;
 	struct File file;
 	struct FAT32DirBlock dblock;
 	int md;
@@ -32,8 +33,11 @@ void open (char * filename, char * mode , int current_cluster)
 	else if (!strcmp(mode ,"rw") || !strcmp(mode ,"wr"))
 		md = F_READWRITE;
 	else
-		//mode not valid
+	{
+		error_msg("mode not valid");
 		return;
+	}
+		
 
 
 	dblock = getDirectoryEntry(current_cluster, filename,!DIRECTORY);
@@ -45,11 +49,14 @@ void open (char * filename, char * mode , int current_cluster)
 		file.mode = md;
 	}
 	else
-		return;
-	 // return error file does not exist or not a file
+	{
+		error_msg("error file does not exist or not a file");
+		return;	 
+	}
+		
 		
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++ )
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++ )
 	{
 		if ( files[i].name != NULL && !strcmp(filename,files[i].name))
 		{
@@ -59,23 +66,21 @@ void open (char * filename, char * mode , int current_cluster)
 				return;
 			}
 			
-				printf("changing %s mode to %s\n\n", filename ,mode);
+				printf("Changing file %s mode to %s\n\n", filename ,mode);
 				files[i].mode = md;
 				return;
 		}
 	}
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 		{
 			files[i] = file;
-			printf("added %s to open file table in read mode %d\n\n" , files[i].name , files[i].mode);
+			printf("added file %s to opened in mode %s\n\n" , files[i].name , mode);
 			break;
 		}
 	}
-
-	// no space for allocation
 }
 
 
@@ -87,8 +92,9 @@ Print an error if the file is not opened, or if the file does not exist.*/
 
 void close (char * filename)
 {	
+	int i;
 
-	for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+	for ( i = 0 ; i < FILE_STRUCT_SIZE; i++)
 	{
 		if (files[i].name == NULL)
 			continue;
@@ -104,7 +110,7 @@ void close (char * filename)
 
 	}
 
-	return; //not found in open file table.
+	error_msg("File was not opened");
 }
 
 
@@ -130,12 +136,12 @@ void read (int current_cluster,int offset, int sz, char * string)
 
 		if (offset + sz > boot_sector.sector_size)
 		{
-			fread(strlen(string) + string,boot_sector.sector_size-offset,1,img_fp);
+			fread(strlen(string)+string,boot_sector.sector_size-offset,1,img_fp);
 			sz = sz - (boot_sector.sector_size-offset);
 		}
 		else
 		{
-			fread(strlen(string) + string,sz,1,img_fp);
+			fread(strlen(string)+string,sz,1,img_fp);
 			return;
 		}
 

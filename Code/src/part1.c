@@ -18,28 +18,6 @@ void getInfo(int boolean)
 	 	printf("root_dir_entries %d\n",boot_sector.root_dir_entries);
 	 	printf("fat_size_sectors %d\n",boot_sector.fat_size_sectors);
 	}
-
- 	/*
- 	//printf("jmp %d\n",boot_sector->jmp);
-	 	printf("reserved_sectors %d\n",boot_sector->reserved_sectors);
- 	printf("root_dir_entries %d\n",boot_sector->root_dir_entries);
- 	printf("total_sectors_short %d\n",boot_sector->total_sectors_short);
- 	printf("media_descriptor %d\n",boot_sector->media_descriptor);
- 	printf("fat_size_sectors %d\n",boot_sector->fat_size_sectors);
- 	printf("sectors_per_track %d\n",boot_sector->sectors_per_track);
- 	printf("number_of_heads %d\n",boot_sector->number_of_heads);
- 	printf("hidden_sectors %d\n",boot_sector->hidden_sectors);
- 	printf("total_sectors_long %d\n",boot_sector->total_sectors_long);
-
-	printf("bpb_FATz32 %d\n",boot_sector->bpb_FATz32);
-	printf("bpb_extflags %d\n",boot_sector->bpb_extflags);
-	printf("bpb_fsver %d\n",boot_sector->bpb_fsver); 
-	
-	printf("volume_label %s\n",boot_sector->volume_label);
-	printf("fs_type %s\n",boot_sector->fs_type);
-	printf("boot_code %s\n",boot_sector->boot_code);
-	printf("boot_sector_signature %d\n",boot_sector->boot_sector_signature);
-	*/
 }
 
 void ls(int cluster_num)
@@ -65,6 +43,7 @@ void ls(int cluster_num)
 			
 
 		if (dblock.Attr == DIRECTORY) 
+
 			printf("\033[34m%s\x1B[0m\n",formatname((char *)dblock.name,DIRECTORY));
 		else
 			printf("%s\n",formatname((char *)dblock.name,!DIRECTORY));
@@ -82,7 +61,7 @@ void ls(int cluster_num)
 unsigned int cd (unsigned int current_cluster, char * dirname)
 {
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,dirname,DIRECTORY);
-	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && dblock.Attr == DIRECTORY)	
+	if (!strcmp(formatname((char *)dblock.name,DIRECTORY),dirname) && (dblock.Attr == DIRECTORY))	
 	{
 		if (dblock.FstClusHI*0x100 + dblock.FstClusLO == 0)
 			return boot_sector.bpb_rootcluster;
@@ -90,7 +69,11 @@ unsigned int cd (unsigned int current_cluster, char * dirname)
 		return dblock.FstClusHI*0x100 + dblock.FstClusLO;
 	}
 	else
+	{
+		if (strcmp(dirname,"."))
+			error_msg("Directory not found");
 		return current_cluster;
+	}
 
 }
 
@@ -99,7 +82,7 @@ unsigned int size (unsigned int current_cluster, char * filename)
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,!DIRECTORY);
 	if (!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && !(dblock.Attr == DIRECTORY))	
 	{
-		return dblock.FileSize;
+		return dblock.FileSize + 1;
 	}
 	
 
