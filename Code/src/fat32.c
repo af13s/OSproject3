@@ -33,6 +33,8 @@ int main(int argc, char * argv[])
 	{
 		prompt();
 		num_toks = parseTokens(tokens);
+		if(num_toks == 0)
+			continue;
 		cmd = getCmd(tokens);
 
 		if (cmd == 0) break;

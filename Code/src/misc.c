@@ -100,21 +100,25 @@ void prompt()
 int parseTokens(char ** tokens)
 {
 	char * cmdline;
-	char input[80];
+	char input[800];
 	char * temp;
 	int num_toks = 0;
 	char *wstr;
 	char * copy;
 	
 
-	fgets(input,79,stdin);
+	fgets(input,799,stdin);
 
 	cmdline = strtok(input,"\n");
+	
+	if(cmdline == NULL)
+		return num_toks;
+
 	copy = strdup(cmdline);
-	
+
 	temp = strtok(cmdline, " ");
-	
-	if(!strcmp(temp,"write"))
+
+	if(temp != NULL && !strcmp(temp,"write"))
 	{
 		while(temp != NULL && temp[0] != '"')
 		{
