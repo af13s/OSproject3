@@ -107,7 +107,7 @@ void rm(unsigned int current_cluster, char * filename)
 {
 
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,1);
-
+	int i; 
 	unsigned int rm_cluster_num;
 	if(!strcmp(formatname((char *)dblock.name,1),filename) && dblock.Attr != 0x10)
 	{
@@ -116,7 +116,7 @@ void rm(unsigned int current_cluster, char * filename)
 		removeDirEntry(current_cluster,filename,0);
 		setFatIndex(rm_cluster_num,0x00000000);
 
-		for (int i = 0 ; i < FILE_STRUCT_SIZE; i++)
+		for (i = 0 ; i < FILE_STRUCT_SIZE; i++)
 		{
 			if (files[i].name == NULL)
 				continue;
