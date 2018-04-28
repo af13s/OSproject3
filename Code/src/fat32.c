@@ -126,11 +126,11 @@ void ls_wrapper(int num_toks, int current_cluster, int original_cluster, char **
 
 void size_wrapper(int current_cluster, char * token)
 {
-	unsigned int sz = size(current_cluster,token);
-	if (sz > 0)
+	int sz = size(current_cluster,token);
+	if (sz >= 0)
 		printf("file size of %s: %d bytes\n\n" , token, (sz-1));
-
-	error_msg("Not a file");
+	else
+		error_msg("Not a file");
 }
 
 void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz)
@@ -195,7 +195,10 @@ void read_wrapper (char * filename,int current_cluster,unsigned int offset, unsi
 		}
 	}
 
-	printf("read->%s\n\n", string);
+	if(i == FILE_STRUCT_SIZE)
+		error_msg("file not opened for reading");
+	else
+		printf("read->%s\n\n", string);
 }
 
 void write_wrapper (char * filename,int current_cluster,unsigned int offset, unsigned int sz, char * string)
@@ -265,6 +268,8 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 			break; // file found performed operations and ending loop
 		}
 	}
+	if(i == FILE_STRUCT_SIZE)
+		error_msg("file not opened for writing");
 	free(newstring);
 }
 

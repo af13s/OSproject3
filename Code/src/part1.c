@@ -10,13 +10,10 @@ void getInfo(int boolean)
 	
 	if (!boolean)
 	{
-	 	printf("\noem:  %s\n",boot_sector.oem);
 	 	printf("sector size: %d\n",boot_sector.sector_size);
 	 	printf("Number of fats: %d\n",boot_sector.number_of_fats);
-	 	printf("Root Cluster Num: %d\n\n",boot_sector.bpb_rootcluster);
+	 	printf("Root Cluster Num: %d\n",boot_sector.bpb_rootcluster);
 	 	printf("sectors_per_cluster %d\n",boot_sector.sectors_per_cluster);
-	 	printf("root_dir_entries %d\n",boot_sector.root_dir_entries);
-	 	printf("fat_size_sectors %d\n",boot_sector.fat_size_sectors);
 	}
 }
 
@@ -77,7 +74,7 @@ unsigned int cd (unsigned int current_cluster, char * dirname)
 
 }
 
-unsigned int size (unsigned int current_cluster, char * filename)
+int size (unsigned int current_cluster, char * filename)
 {
 	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,!DIRECTORY);
 	if (!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && !(dblock.Attr == DIRECTORY))	
@@ -86,5 +83,5 @@ unsigned int size (unsigned int current_cluster, char * filename)
 	}
 	
 
-	return 0;
+	return -1;
 }

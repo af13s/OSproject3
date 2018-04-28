@@ -132,5 +132,10 @@ void rm(unsigned int current_cluster, char * filename)
 		}
 
 	}
+	else if(!strcmp(formatname((char *)dblock.name,0),filename) && dblock.Attr == 0x10)
+		printf("\"%s\" IS A DIRECTORY\n", filename);
+	else if(strcmp(formatname((char *)dblock.name,0),filename))
+		printf("\"%s\" DOES NOT EXIST\n", filename);
+
 
 }

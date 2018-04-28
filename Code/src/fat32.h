@@ -20,7 +20,7 @@
 #define NUMCMD 13
 #define BOOTVARNUM 1
 
-#define DIRECTORY 16 
+#define DIRECTORY 16 //HEX x10
 
 
 //File Modes
@@ -80,7 +80,7 @@ unsigned short boot_sector_signature;
  struct File {
  char * name ;
  int first_cluster_number;
- int mode; 
+ int mode; //file 
 
 };
 
@@ -100,11 +100,11 @@ unsigned int cd (unsigned int current_cluster, char * dirname);
 struct FAT32DirBlock getDirectoryEntry(unsigned int cluster_num, char * dirname,int directory);
 
 void size_wrapper(int current_cluster, char * token);
-unsigned int size (unsigned int current_cluster, char * filename);
+int size (unsigned int current_cluster, char * filename);
 
 
 // misc
-void error_msg(char * string);
+void error_msg(char * msg);
 void cmd_error_msg(int cmd,int num_toks,int isValid);
 unsigned int getFirstCSector(int clus_num);
 unsigned int fatEntry(int clus_num);
@@ -133,7 +133,7 @@ void removeDirEntry(unsigned int current_cluster, char * entry_name,int director
 void deleteCluster(unsigned int parent_cluster, unsigned int child_cluster);
 void removeAllDirEntries(unsigned int current_cluster);
 int emptyDirectory(unsigned int cluster);
-//int LinkedEmptyCluster(unsigned int cluster, int dir_flag);
+//int LinkedEmptyCluster(unsigned int cluster, int dir_flag);l
 //part2
 void mkdir(unsigned int current_cluster, char * dirname);
 void creat(unsigned int current_cluster, char * filename);
