@@ -14,6 +14,7 @@ int main(int argc, char * argv[])
 	unsigned int current_cluster;
 	unsigned char original_cluster;
 
+
 	/* open image file*/  
 	img_fp = fopen(argv[1],"rb+");
 
@@ -30,7 +31,6 @@ int main(int argc, char * argv[])
 
 	while(1) 
 	{
-
 		prompt();
 		num_toks = parseTokens(tokens);
 		cmd = getCmd(tokens);
@@ -202,14 +202,15 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 	int starting_cluster;
 	int n;
 	struct FAT32DirBlock dblock;
+	
 	char * newstring = strdup(string);
 
+	
 	if (strlen(string) <= sz)
 	{
 		newstring = (char *)calloc(sz, sizeof(char));
 		strcpy(newstring,string);
 	}
-
 	
 	dblock =  getDirectoryEntry(current_cluster, filename,!DIRECTORY);
 

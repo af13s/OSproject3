@@ -103,18 +103,42 @@ int parseTokens(char ** tokens)
 	char input[80];
 	char * temp;
 	int num_toks = 0;
+	char *wstr;
+	char * copy;
+	
 
 	fgets(input,79,stdin);
-	cmdline = strtok(input,"\n");
 
-	/*Parse the input*/
-		temp = strtok(cmdline, " ");
-		while(temp != NULL )
+	cmdline = strtok(input,"\n");
+	copy = strdup(cmdline);
+	
+	temp = strtok(cmdline, " ");
+	
+	if(!strcmp(temp,"write"))
+	{
+		while(temp != NULL && temp[0] != '"')
 		{
 			tokens[num_toks++] = strdup(temp);
 			temp = strtok(NULL," ");
 		}
 
+		wstr = strchr(copy,'"');
+		temp = strtok(wstr+1,"\"");
+		tokens[num_toks++] = strdup(temp);
+
+		return num_toks;
+	}
+
+	
+
+
+	/*Parse the input*/
+	
+	while(temp != NULL )
+	{
+		tokens[num_toks++] = strdup(temp);
+		temp = strtok(NULL," ");
+	}
 	return num_toks;
 }
 
