@@ -81,10 +81,10 @@ int main(int argc, char * argv[])
 		    	break;
 
 		    case MKDIR:
-		    	mkdir(current_cluster,tokens[1]);
+		    	mkdir(current_cluster,strtolower(tokens[1]));
 		    	break;
 		    case CREAT:
-		    	creat(current_cluster,tokens[1]);
+		    	creat(current_cluster,strtolower(tokens[1]));
 		    	break;
 		    case RMDIR:
 		    	rmdir(current_cluster,tokens[1]);
@@ -272,6 +272,18 @@ void write_wrapper (char * filename,int current_cluster,unsigned int offset, uns
 		error_msg("file not opened for writing");
 	free(newstring);
 }
+
+char * strtolower(char * str)
+{
+	for(int i = 0; i < strlen(str); i++)
+	{
+  		str[i] = tolower(str[i]);
+	}
+
+	return str;
+}
+
+
 
 
 

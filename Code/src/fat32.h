@@ -91,6 +91,7 @@ int isValidArg(int cmd, int argNum);
 void getInfo(int boolean);
 int getCmd(char ** tokens);
 void prompt();
+char * strtolower(char * str);
 
 
 //part1
