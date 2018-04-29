@@ -12,12 +12,11 @@ Contents of Tar Archive:
 ========================
 1. Makefile         
 2. fat32.c     
-3. fat32.h    
-4. info.c        
-5. misc.c
-6. part1.c
-7. part2.c
-8. part3.c           
+3. fat32.h            
+4. misc.c
+5. part1.c
+6. part2.c
+7. part3.c           
 
 =====================
 Makefile instructions
