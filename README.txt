@@ -17,9 +17,7 @@ Contents of Tar Archive:
 5. misc.c
 6. part1.c
 7. part2.c
-8. part3.c
-9. root cluster
-10. run           
+8. part3.c           
 
 =====================
 Makefile instructions
@@ -30,6 +28,9 @@ make
 
 To clean: 
 make clean
+
+To run:
+./a.out fat32.img
 
 ===========
 Known bugs: 
