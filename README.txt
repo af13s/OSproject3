@@ -17,7 +17,8 @@ Contents of Tar Archive:
 5. misc.c
 6. part1.c
 7. part2.c
-8. part3.c           
+8. part3.c
+9. README
 
 =====================
 Makefile instructions
