@@ -86,7 +86,7 @@ void rmdir(unsigned int current_cluster, char * dirname)
 		
 		if(emptyDirectory(rm_cluster_num))
 		{
-			removeDirEntry(current_cluster,dirname,1);
+			removeDirEntry(current_cluster,dirname,DIRECTORY);
 			fseek(img_fp,dir_addr,SEEK_SET);
 			fwrite(&x,sizeof(struct FAT32DirBlock),2,img_fp);
 			setFatIndex(rm_cluster_num,x);
@@ -96,9 +96,9 @@ void rmdir(unsigned int current_cluster, char * dirname)
 		else
 			printf("DIRECTORY NOT EMPTY\n");
 	}
-	else if(!strcmp(formatname((char *)dblock.name,1),dirname) && dblock.Attr != 0x10)
+	else if(!strcmp(formatname((char *)dblock.name,!DIRECTORY),dirname) && dblock.Attr != 0x10)
 		printf("\"%s\" NOT A DIRECTORY\n", dirname);
-	else if(strcmp(formatname((char *)dblock.name,1),dirname))
+	else if(strcmp(formatname((char *)dblock.name,DIRECTORY),dirname))
 		printf("\"%s\" DOES NOT EXIST\n", dirname);
 	
 }
@@ -106,14 +106,14 @@ void rmdir(unsigned int current_cluster, char * dirname)
 void rm(unsigned int current_cluster, char * filename)
 {
 
-	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,1);
+	struct FAT32DirBlock dblock = getDirectoryEntry(current_cluster,filename,!DIRECTORY);
 	int i; 
 	unsigned int rm_cluster_num;
-	if(!strcmp(formatname((char *)dblock.name,1),filename) && dblock.Attr != 0x10)
+	if(!strcmp(formatname((char *)dblock.name,!DIRECTORY),filename) && dblock.Attr != 0x10)
 	{
 		rm_cluster_num = dblock.FstClusHI*0x100 + dblock.FstClusLO;
 		removeAllDirEntries(rm_cluster_num);
-		removeDirEntry(current_cluster,filename,0);
+		removeDirEntry(current_cluster,filename,!DIRECTORY);
 		setFatIndex(rm_cluster_num,0x00000000);
 
 		for (i = 0 ; i < FILE_STRUCT_SIZE; i++)
@@ -121,7 +121,7 @@ void rm(unsigned int current_cluster, char * filename)
 			if (files[i].name == NULL)
 				continue;
 				
-			if (!strcmp(filename,files[i].name))
+			if (!strcmp(filename,formatname((char*)files[i].name,!DIRECTORY)))
 			{
 				files[i].name = NULL;
 				files[i].first_cluster_number = 0;
@@ -132,9 +132,9 @@ void rm(unsigned int current_cluster, char * filename)
 		}
 
 	}
-	else if(!strcmp(formatname((char *)dblock.name,0),filename) && dblock.Attr == 0x10)
+	else if(!strcmp(formatname((char *)dblock.name,DIRECTORY),filename) && dblock.Attr == 0x10)
 		printf("\"%s\" IS A DIRECTORY\n", filename);
-	else if(strcmp(formatname((char *)dblock.name,0),filename))
+	else if(strcmp(formatname((char *)dblock.name,!DIRECTORY),filename))
 		printf("\"%s\" DOES NOT EXIST\n", filename);
 
 
