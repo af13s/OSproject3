@@ -36,10 +36,7 @@ To run:
 Known bugs: 
 ===========
 1. All creations of files and directories are converted to lower case before storage. So if you tried to input "creat AAA" and then "creat aaa", the program would say that the file already exists.
-
-2. Preexisting files with extensions are not handled correctly. For example, if you tried "rm fatspec.pdf", it will not remove. But, if you created a file with an extension and then removed it, the program handles it correctly. "creat hello.pdf" and then "rm hello.pdf" works correctly. 
-
-====================
+===================
 Additional comments:
 ==================== 
 N/A
